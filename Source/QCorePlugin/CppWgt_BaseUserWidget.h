@@ -17,7 +17,7 @@ UCLASS(Abstract, editinlinenew, BlueprintType, Blueprintable, meta = (DontUseGen
 class QCOREPLUGIN_API UCppWgt_BaseUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
-
+		  
 #pragma region Event
 
 public:
