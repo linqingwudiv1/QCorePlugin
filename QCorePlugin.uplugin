@@ -1,0 +1,30 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "1.0",
+  "FriendlyName": "QCorePlugin",
+  "Description": "",
+  "Category": "Other",
+  "CreatedBy": "bj-linqing",
+  "CreatedByURL": "",
+  "DocsURL": "",
+  "MarketplaceURL": "",
+  "SupportURL": "",
+  "CanContainContent": true,
+  "IsBetaVersion": false,
+  "Installed": false,
+  "Modules": [
+    {
+      "Name": "QCorePlugin",
+      "Type": "Runtime",
+      "LoadingPhase": "PreLoadingScreen"
+    }
+  ],
+  "Plugins": [
+
+    {
+      "Name": "WebBrowserWidget",
+      "Enabled": true
+    }
+  ]
+}
