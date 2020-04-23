@@ -1,11 +1,21 @@
 // Some copyright should be here...
 
+using System;
+using System.IO;
 using UnrealBuildTool;
 
 public class QCorePlugin : ModuleRules
 {
-	public QCorePlugin(ReadOnlyTargetRules Target) : base(Target)
+
+    static private bool IsShipping(ReadOnlyTargetRules Target)
+    {
+        return Target.Configuration == UnrealTargetConfiguration.Shipping;
+    }
+
+    public QCorePlugin(ReadOnlyTargetRules Target) : base(Target)
 	{
+
+
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
 		PublicIncludePaths.AddRange(
@@ -25,38 +35,59 @@ public class QCorePlugin : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core",
-                "WebBrowser",
-                "WebBrowserWidget"
-				// ... add other public dependencies that you statically link with here ...
-			}
+                // ... add other public dependencies that you statically link with here ...
+                //"DesktopPlatformEx"
+            }
 			);
 			
 		
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
+                "Core",
                 "CoreUObject",
                 "Engine",
                 "InputCore",
                 "RHI",
                 "RenderCore",
-                "HTTP",
-                "DesktopPlatform",
-                "UMG",
                 "Slate",
                 "SlateCore",
+                "HTTP",
+                "UMG",
                 "AIModule",
                 "ImageWrapper",
-                "FunctionalTesting",
                 "Json"              ,
                 "JsonUtilities"     ,
                 "Sockets",
                 "Networking",
-                "IPC"
+                "IPC",
+                // web plugin
+                "WebBrowser",
+                "WebBrowserWidget",
+
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
+
+        if (IsShipping(Target))
+        {
+            PrivateDependencyModuleNames.Add("QDesktopPlatform");
+        }
+        else
+        {
+            PrivateDependencyModuleNames.Add("DesktopPlatform");
+        }
+
+        //WebBrowser Dependend
+        if (Target.Type == TargetRules.TargetType.Editor)
+        {
+            PrivateDependencyModuleNames.AddRange(
+                new string[]
+                {
+                    "UnrealEd"
+                }
+            );
+        }
 
         PublicDefinitions.Add("WIN32_LEAN_AND_MEAN");
 

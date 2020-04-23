@@ -27,6 +27,7 @@ public:
 	/** */
 	void LoadFormURL(const FString &Url, void(bindfunc)(bool, UTexture2D *), bool  bAutoGenerateMips = true, bool bForceGenerateMips = false);
 
+
 	static class UTexture2D * LoadFromDisk(const FString &Path, bool  bAutoGenerateMips = true, bool bForceGenerateMips = false);
 
 #pragma region Delegate Event

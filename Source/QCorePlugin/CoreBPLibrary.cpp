@@ -3,8 +3,6 @@
 #include "CoreBPLibrary.h"
 
 
-#include "DesktopPlatformModule.h"
-#include "IDesktopPlatform.h"
 #include "Misc/Paths.h"
 #include "Misc/FileHelper.h"
 #include "Engine/Texture2D.h"
@@ -15,6 +13,13 @@
 #include "Kismet/KismetInputLibrary.h"
 #include "Regex.h"
 
+
+#include "IDesktopPlatform.h"
+#if UE_BUILD_SHIPPING
+#include "QDesktopPlatformModule.h"
+#else
+#include "DesktopPlatformModule.h"
+#endif
 
 #pragma region Static Method
 
@@ -27,10 +32,10 @@ static bool IsAllowedChar(UTF8CHAR LookupChar)
 
 	if (!bTableFilled)
 	{
-		for (int32 Idx = 0; Idx < ARRAY_COUNT(AllowedChars) - 1; ++Idx)	// -1 to avoid trailing 0
+		for (int32 Idx = 0; Idx < UE_ARRAY_COUNT(AllowedChars) - 1; ++Idx)	// -1 to avoid trailing 0
 		{
 			uint8 AllowedCharIdx = static_cast<uint8>(AllowedChars[Idx]);
-			check(AllowedCharIdx < ARRAY_COUNT(AllowedTable));
+			check(AllowedCharIdx < UE_ARRAY_COUNT(AllowedTable));
 			AllowedTable[AllowedCharIdx] = true;
 		}
 
@@ -133,55 +138,6 @@ bool UCoreBPLibrary::WriteFromIPC(UObject * WorldContextObject)
 int UCoreBPLibrary::CreateIPC(UObject * WorldContextObject)
 {
 	return 0;
-
-//#if PLATFORM_WINDOWS
-//	#define BUFSIZE 512
-//	// Open the named pipe
-//	// Most of these parameters aren't very relevant for pipes.
-//	HANDLE pipe = CreateFile(
-//		L"\\\\.\\pipe\\my_pipe",
-//		GENERIC_READ, // only need read access
-//		FILE_SHARE_READ | FILE_SHARE_WRITE,
-//		NULL,
-//		OPEN_EXISTING,
-//		FILE_ATTRIBUTE_NORMAL,
-//		NULL
-//	);
-//
-//	if (pipe == INVALID_HANDLE_VALUE) 
-//	{
-//		UE_LOG(LogTemp, Log, TEXT("Failed to connect to pipe."));
-//		return 1;
-//	}
-//	
-//	UE_LOG(LogTemp, Log, TEXT("Reading data from pipe..."));
-//	wchar_t buffer[128];
-//	DWORD numBytesRead = 0;
-//
-//	BOOL result = ReadFile(
-//		pipe ,
-//		buffer , // the data from the pipe will be put here
-//		127 * sizeof(wchar_t) , // number of bytes allocated
-//		&numBytesRead , // this will store number of bytes actually read
-//		NULL // not using overlapped IO
-//	);
-//
-//	if (result) 
-//	{
-//		buffer[numBytesRead / sizeof(wchar_t)] = '\0'; // null terminate the string
-//		
-//		UE_LOG(LogTemp, Log, TEXT("Number of bytes read: %d"), numBytesRead );
-//		UE_LOG(LogTemp, Log, TEXT("Number of bytes read: %s"), buffer);
-//	}
-//	else 
-//	{
-//		UE_LOG(LogTemp, Log, TEXT("Failed to read data from the pipe."));
-//	}
-//	// Close our pipe handle
-//	CloseHandle(pipe);
-//	return 0;
-//#endif
-
 }
 
 bool UCoreBPLibrary::bIsRW(UObject * WorldContextObject)
@@ -238,10 +194,16 @@ FString UCoreBPLibrary::UrlEncode( const FString &UnencodedString)
 
 TArray<FString> UCoreBPLibrary::OpenFileDialog(UObject * WorldContextObject)
 {
-	IDesktopPlatform* deskPlatform = FDesktopPlatformModule::Get();
 	TArray<FString> arr_outfile;
-	FString def_path = FPaths::ProjectDir();
+	IDesktopPlatform* deskPlatform = nullptr;
+#if UE_BUILD_SHIPPING
+	deskPlatform = FDesktopPlatformModule::Get();
+#else
+	deskPlatform = FDesktopPlatformModule::Get();
+#endif
 
+	FString def_path = FPaths::ProjectDir();
+	
 	bool isSuccess = deskPlatform->OpenFileDialog(nullptr ,
 												  TEXT("打开图片") ,
 												  def_path ,
