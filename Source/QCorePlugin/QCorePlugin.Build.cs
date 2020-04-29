@@ -36,7 +36,8 @@ public class QCorePlugin : ModuleRules
 			new string[]
 			{
                 // ... add other public dependencies that you statically link with here ...
-                //"DesktopPlatformEx"
+                "QDesktopPlatform"
+                
             }
 			);
 			
@@ -44,26 +45,27 @@ public class QCorePlugin : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
-                "Core",
-                "CoreUObject",
-                "Engine",
-                "InputCore",
-                "RHI",
-                "RenderCore",
-                "Slate",
-                "SlateCore",
-                "HTTP",
-                "UMG",
-                "AIModule",
-                "ImageWrapper",
+                "Core"              ,
+                "CoreUObject"       ,
+                "Engine"            ,
+                "InputCore"         ,
+                "RHI"               ,
+                "RenderCore"        ,
+                "Slate"             ,
+                "SlateCore"         ,
+                "HTTP"              ,
+                "UMG"               ,
+                "AIModule"          ,
+                "ImageWrapper"      ,
                 "Json"              ,
                 "JsonUtilities"     ,
-                "Sockets",
-                "Networking",
-                "IPC",
+                "Sockets"           ,
+                "Networking"        ,
+                "IPC"               ,
                 // web plugin
-                "WebBrowser",
-                "WebBrowserWidget",
+                "WebBrowser"        ,
+                "WebBrowserWidget"  ,
+                // custom modules
 
 				// ... add private dependencies that you statically link with here ...	
 			}
@@ -71,11 +73,11 @@ public class QCorePlugin : ModuleRules
 
         if (IsShipping(Target))
         {
-            PrivateDependencyModuleNames.Add("QDesktopPlatform");
+            //PrivateDependencyModuleNames.Add("QDesktopPlatform");
         }
         else
         {
-            PrivateDependencyModuleNames.Add("DesktopPlatform");
+            //PrivateDependencyModuleNames.Add("DesktopPlatform");
         }
 
         //WebBrowser Dependend

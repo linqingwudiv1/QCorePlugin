@@ -3,6 +3,7 @@
 #include "CoreBPLibrary.h"
 
 
+#include "Engine/Engine.h"
 #include "Misc/Paths.h"
 #include "Misc/FileHelper.h"
 #include "Engine/Texture2D.h"
@@ -14,15 +15,16 @@
 #include "Regex.h"
 
 
+#include "Framework/Application/SlateApplication.h"
+#include "Widgets/SViewport.h"
+
+//
 #include "IDesktopPlatform.h"
-#if UE_BUILD_SHIPPING
 #include "QDesktopPlatformModule.h"
-#else
-#include "DesktopPlatformModule.h"
-#endif
+
+#include "Helper/ImageHelper.h"
 
 #pragma region Static Method
-
 
 static bool IsAllowedChar(UTF8CHAR LookupChar)
 {
@@ -35,6 +37,7 @@ static bool IsAllowedChar(UTF8CHAR LookupChar)
 		for (int32 Idx = 0; Idx < UE_ARRAY_COUNT(AllowedChars) - 1; ++Idx)	// -1 to avoid trailing 0
 		{
 			uint8 AllowedCharIdx = static_cast<uint8>(AllowedChars[Idx]);
+
 			check(AllowedCharIdx < UE_ARRAY_COUNT(AllowedTable));
 			AllowedTable[AllowedCharIdx] = true;
 		}
@@ -69,6 +72,37 @@ bool UCoreBPLibrary::RegexMatch(const FString& Str, const FString& Pattern, TArr
 
 
 
+TArray<FString> UCoreBPLibrary::OpenFileDialog( UObject * WorldContextObject,
+												const FString &Title  ,
+												const FString defPath ,
+												const FString& FileTypes ,
+												EM_EFileDialogFlags Flags )
+{
+	void* ParentWindowPtr = FSlateApplication::Get().GetActiveTopLevelWindow()->GetNativeWindow()->GetOSWindowHandle();
+	TArray<FString> arr_outfile;
+	IDesktopPlatform* deskPlatform = nullptr;
+	
+	deskPlatform = FQDesktopPlatformModule::Get();
+	
+	
+	FString def_path = defPath.IsEmpty() ? FPaths::ProjectDir() : defPath;
+	
+	bool isSuccess = deskPlatform->OpenFileDialog(ParentWindowPtr,
+		*Title,
+		def_path,
+		TEXT("") ,
+		FileTypes /*TEXT("打开图片|*.png;*.jpg;*.jpeg")*/,
+		(uint32)Flags,
+		arr_outfile);
+	
+	return arr_outfile;
+}
+
+UTexture2D * UCoreBPLibrary::LoadTexture2DFromDisk(const FString &Path, bool  bAutoGenerateMips, bool bForceGenerateMips)
+{
+	return UImageHelper::LoadFromDisk(Path, bAutoGenerateMips, bForceGenerateMips);
+}
+
 int32 UCoreBPLibrary::GetMeshMaterialNum(UStaticMesh * mesh)
 {
 	int32 num = mesh->StaticMaterials.Num();
@@ -83,7 +117,7 @@ bool UCoreBPLibrary::executeShellCMD(const FString & cmd)
 	system(convert_cmd);
 	return true;
 #else
-	UE_LOG(LogTemp, Log, TEXT("platform is not support"));
+	UE_LOG(LogTemp, Error, TEXT("platform is not support"));
 	return false;
 #endif
 }
@@ -135,11 +169,6 @@ bool UCoreBPLibrary::WriteFromIPC(UObject * WorldContextObject)
 	return result;
 }
 
-int UCoreBPLibrary::CreateIPC(UObject * WorldContextObject)
-{
-	return 0;
-}
-
 bool UCoreBPLibrary::bIsRW(UObject * WorldContextObject)
 {
 	return UCoreBPLibrary::GetNamedPipe()->IsReadyForRW();
@@ -159,7 +188,6 @@ FPlatformNamedPipe* UCoreBPLibrary::GetNamedPipe(const FString& PipeName, bool b
 			return nullptr;
 		}
 	}
-
 
 	return &p;
 }
@@ -192,25 +220,39 @@ FString UCoreBPLibrary::UrlEncode( const FString &UnencodedString)
 	return EncodedString;
 }
 
-TArray<FString> UCoreBPLibrary::OpenFileDialog(UObject * WorldContextObject)
+void UCoreBPLibrary::AdjustViewportSize(UObject * WorldContextObject, FMargin padding)
 {
-	TArray<FString> arr_outfile;
-	IDesktopPlatform* deskPlatform = nullptr;
-#if UE_BUILD_SHIPPING
-	deskPlatform = FDesktopPlatformModule::Get();
-#else
-	deskPlatform = FDesktopPlatformModule::Get();
-#endif
+	if (WorldContextObject->GetWorld() && GEngine)
+	{
 
-	FString def_path = FPaths::ProjectDir();
-	
-	bool isSuccess = deskPlatform->OpenFileDialog(nullptr ,
-												  TEXT("打开图片") ,
-												  def_path ,
-												  TEXT("") ,
-												  TEXT("打开图片|*.png;*.jpg;*.jpeg") ,
-												  EFileDialogFlags::None ,
-												  arr_outfile );
+		UGameViewportClient* gameViewport = GEngine->GameViewport;
+		//WorldObjectContext->GetWorld()->App
+		FVector2D ViewportSize;
+		
+		gameViewport->GetViewportSize(ViewportSize);
+		
+		// The GameViewport takes some time to initialize
+		if (ViewportSize.X > 0 && ViewportSize.Y > 0)
+		{
+			FMargin relativeMat = FMargin
+			{
+				padding.Left	    / ViewportSize.X ,
+				padding.Top		    / ViewportSize.Y ,
+				1 - padding.Right   / ViewportSize.X ,
+				1 - padding.Bottom  / ViewportSize.Y
+			};
 
-	return arr_outfile;
+			gameViewport->SplitscreenInfo[0].PlayerData[0].OriginX = relativeMat.Left;
+			gameViewport->SplitscreenInfo[0].PlayerData[0].OriginY = relativeMat.Top;
+
+			gameViewport->SplitscreenInfo[0].PlayerData[0].SizeX   = relativeMat.Right;
+			gameViewport->SplitscreenInfo[0].PlayerData[0].SizeY   = relativeMat.Bottom;
+		}
+	}
+}
+
+FString UCoreBPLibrary::GetSoftObjectPtrRefPath(TSoftObjectPtr<class USkeletalMesh> ptr)
+{
+	FSoftObjectPath objPath = ptr.ToSoftObjectPath();
+	return objPath.GetAssetPathString();
 }

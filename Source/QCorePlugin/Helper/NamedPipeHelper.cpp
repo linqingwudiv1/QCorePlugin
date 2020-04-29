@@ -36,6 +36,7 @@ FPlatformNamedPipe * UNamedPipeHelper::GetNamedPipe()
 			return nullptr;
 		}
 	}
+
 	return &NamedPipe;
 }
 

@@ -3,7 +3,7 @@
 
 #include "ImageHelper.h"
 
-#include "CoreBPLibrary.h"
+#include "BPLibrary/CoreBPLibrary.h"
 
 #include "API/NetAPI.h"
 #include "Modules/ModuleManager.h"
@@ -23,11 +23,12 @@
 #pragma region Graphs Algorithm
 
 //双立方插值
-void InterpolationScale(const uint8 * SrcData, int SrcWidth, int SrcHeight, uint8 * DstData, int DstWidth, int DstHeight)
+static void InterpolationScale(const uint8 * SrcData, int SrcWidth, int SrcHeight, uint8 * DstData, int DstWidth, int DstHeight)
 {
 
-	float w_scaleFactor = float(SrcWidth) / DstWidth;
+	float w_scaleFactor = float(SrcWidth)  / DstWidth;
 	float h_scaleFactor = float(SrcHeight) / DstHeight;
+
 
 	TArray<int32> arr_w;
 	TArray<int32> arr_h;
@@ -67,7 +68,7 @@ void InterpolationScale(const uint8 * SrcData, int SrcWidth, int SrcHeight, uint
 }
 
 //二分均值
-void MinifyByTwoScale(const uint8 * SrcData, uint8 * dstData, int srcWidth, int srcHeight)
+static void MinifyByTwoScale(const uint8 * SrcData, uint8 * dstData, int srcWidth, int srcHeight)
 {
 	int x, y, x2, y2;
 	int TgtWidth, TgtHeight;

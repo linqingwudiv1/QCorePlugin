@@ -15,7 +15,7 @@ public:
 
 	static IDesktopPlatform* Get()
 	{
-		FQDesktopPlatformModule& DesktopPlatformModule = FModuleManager::Get().LoadModuleChecked<FQDesktopPlatformModule>("QDesktopPlatformModule");
+		FQDesktopPlatformModule& DesktopPlatformModule = FModuleManager::Get().LoadModuleChecked<FQDesktopPlatformModule>("QDesktopPlatform");
 		return DesktopPlatformModule.GetSingleton();
 	}
 
