@@ -29,7 +29,6 @@ static void InterpolationScale(const uint8 * SrcData, int SrcWidth, int SrcHeigh
 	float w_scaleFactor = float(SrcWidth)  / DstWidth;
 	float h_scaleFactor = float(SrcHeight) / DstHeight;
 
-
 	TArray<int32> arr_w;
 	TArray<int32> arr_h;
 

@@ -49,7 +49,6 @@ public:
 		}
 	}
 	
-
 	virtual bool Visit(const TCHAR* FilenameOrDirectory, bool bIsDirectory) override
 	{
 		int32 i;

@@ -16,6 +16,7 @@
 FVector2D UCoordProjectionBPLibrary::ProjectWorldToScreenPosition(const FVector& WorldLocation)
 {
 	TObjectIterator<APlayerController> ThePC;
+
 	if (!ThePC) 
 	{
 		return FVector2D::ZeroVector;
@@ -44,6 +45,7 @@ FVector2D UCoordProjectionBPLibrary::ProjectWorldToScreenPosition(const FVector&
 			//Return
 			FVector2D ScreenLocation;
 			SceneView->WorldToPixel(WorldLocation, ScreenLocation);
+
 			return ScreenLocation;
 		}
 	}
@@ -72,9 +74,6 @@ TArray<FVector2D> UCoordProjectionBPLibrary::WorldBoxToScreenBox(UObject *WorldC
 	
 	FTransform tran(rot);
 	TArray<FVector> arr;
-
-	auto box = FBox::BuildAABB(Center, Extend);
-
 
 	arr.Add(Center + tran.TransformPosition(FVector{  Extend.X ,  Extend.Y,  Extend.Z }));
 	arr.Add(Center + tran.TransformPosition(FVector{  Extend.X , -Extend.Y, -Extend.Z }));
@@ -137,4 +136,27 @@ TArray<FVector2D> UCoordProjectionBPLibrary::WorldBoxToScreenBox(UObject *WorldC
 #pragma endregion 
 	
 	return arrline;
+}
+
+
+#include "Kismet/KismetInputLibrary.h"
+
+FVector2D UCoordProjectionBPLibrary::GetMousePosition(UObject * WorldContextObject)
+{
+	if (!GEngine) 
+	{
+		return FVector2D{};
+	}
+	UGameViewportClient* viewport = GEngine->GameViewport;
+	float factory = UWidgetLayoutLibrary::GetViewportScale(WorldContextObject);
+	FVector2D mousePos = UWidgetLayoutLibrary::GetMousePositionOnViewport(WorldContextObject);
+	mousePos = mousePos * factory;
+	return mousePos;
+}
+
+bool UCoordProjectionBPLibrary::GetMousePositionByScreenPosition(UObject * WorldContextObject,  FVector & OutWorldOrigin, FVector & OutWorldDirection)
+{
+	FVector2D ViewPos = UCoordProjectionBPLibrary::GetMousePosition(WorldContextObject);
+	bool bResult = UCoordProjectionBPLibrary::DeprojectScreenPosition(WorldContextObject, ViewPos, OutWorldOrigin, OutWorldDirection);
+	return bResult;
 }

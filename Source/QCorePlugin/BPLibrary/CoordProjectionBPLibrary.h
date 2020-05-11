@@ -23,10 +23,19 @@ public:
 		static FVector2D ProjectWorldToScreenPosition(const FVector& WorldLocation);
 
 	/* 转换屏幕坐标到场景坐标(屏幕解投影). */
-	UFUNCTION(BlueprintPure, Category = "QCore | CoordProjection", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
+	UFUNCTION( BlueprintPure, Category = "QCore | CoordProjection", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject") )
 		static bool DeprojectScreenPosition(UObject* WorldContextObject, const FVector2D& ViewportPosition, FVector& OutWorldOrigin, FVector& OutWorldDirection);
 
 	/** 世界坐标盒体到屏幕盒体(绘制线)的投影. */
-	UFUNCTION(BlueprintPure, Category = "QCore | CoordProjection", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
+	UFUNCTION( BlueprintPure, Category = "QCore | CoordProjection", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject") )
 		static TArray<FVector2D> WorldBoxToScreenBox(UObject *WorldContextObject,const FVector& Center, const FRotator& rot, const FVector& Extend);
+
+	/** 获取鼠标在视口的位置 */
+	UFUNCTION( BlueprintPure, Category = "QCore | CoordProjection", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject") )
+		static FVector2D GetMousePosition(UObject *WorldContextObject);
+	
+	/** 获取鼠标在视口位置的场景投影与方向 */
+	UFUNCTION( BlueprintPure, Category = "QCore | CoordProjection", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject") )
+		static bool GetMousePositionByScreenPosition(UObject *WorldContextObject, FVector& OutWorldOrigin, FVector& OutWorldDirection);
+
 };
