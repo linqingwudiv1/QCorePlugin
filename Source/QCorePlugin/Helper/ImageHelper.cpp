@@ -9,6 +9,8 @@
 #include "Modules/ModuleManager.h"
 #include "IImageWrapperModule.h"
 #include "Engine/Texture2D.h"
+#include "Engine/Texture2DDynamic.h"
+#include "TextureResource.h"
 #include "Engine/CanvasRenderTarget2D.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "Runtime/Core/Public/Misc/FileHelper.h"
@@ -115,7 +117,7 @@ static void MinifyByTwoScale(const uint8 * SrcData, uint8 * dstData, int srcWidt
  * @param	bAutoGenerateMips  是否生成MipMap.	 Note:必须确保图片长宽都是2的N次方或为正方形图片
  * @param	bForceGenerateMips 是否强行生成Mips. Note:会导致非2的N次方的非方形图片拉伸变形
  */
-UTexture2D* Handle_T2D(int imgW, int imgH, const TArray<uint8>* rawData, bool  bAutoGenerateMips = true, bool bForceGenerateMips = false)
+UTexture2D* Handle_T2D(int imgW, int imgH, const TArray<uint8>& rawData, bool  bAutoGenerateMips = true, bool bForceGenerateMips = false)
 {
 
 	UTexture2D* LoadedT2D = nullptr;
@@ -153,13 +155,13 @@ UTexture2D* Handle_T2D(int imgW, int imgH, const TArray<uint8>* rawData, bool  b
 	{
 		LoadedT2D = UTexture2D::CreateTransient(ScaleW, ScaleH, PF_B8G8R8A8);
 		TextureData = static_cast<uint8*>(LoadedT2D->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE));
-		InterpolationScale(rawData->GetData(), imgW, imgH, TextureData, ScaleW, ScaleH);
+		InterpolationScale(rawData.GetData(), imgW, imgH, TextureData, ScaleW, ScaleH);
 	}
 	else
 	{
 		LoadedT2D = UTexture2D::CreateTransient(imgW, imgH, PF_B8G8R8A8);
 		TextureData = static_cast<uint8*>(LoadedT2D->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE));
-		FMemory::Memcpy(TextureData, rawData->GetData(), rawData->Num());
+		FMemory::Memcpy(TextureData, rawData.GetData(), rawData.Num());
 	}
 
 	LoadedT2D->SRGB = true;
@@ -199,11 +201,11 @@ UTexture2D* Handle_T2D(int imgW, int imgH, const TArray<uint8>* rawData, bool  b
 			int newWidth  = ( i < pow_W ? (curW * 2) : 1);
 			int newHeight = ( i < pow_H ? (curH * 2) : 1);
 
-			MinifyByTwoScale(pre_data,
-				Data, 
-				newWidth, 
-				newHeight
-			);
+			MinifyByTwoScale(	pre_data,
+								Data, 
+								newWidth, 
+								newHeight
+							);
 
 			pre_data = Data;
 
@@ -321,7 +323,7 @@ UTexture2D * UImageHelper::LoadFromDisk(const FString & Path,
 	}
 
 	UTexture2D* LoadedT2D = NULL;
-	const TArray<uint8>* rawData = nullptr;
+	TArray<uint8>rawData;
 	EImageFormat ImageFormat = GetImageFormatFromPath(Path);
 
 	IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
@@ -333,7 +335,6 @@ UTexture2D * UImageHelper::LoadFromDisk(const FString & Path,
 		UE_LOG(LogHttp, Error, TEXT("can't Set Compressed or ImageWrapper is InValid"));
 		return nullptr;
 	}
-
 	if (!ImageWrapper->GetRaw(ERGBFormat::BGRA, 8, rawData))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("can't get Raw Data"));
@@ -344,6 +345,64 @@ UTexture2D * UImageHelper::LoadFromDisk(const FString & Path,
 	int32 h = ImageWrapper->GetHeight();
 
 	LoadedT2D = Handle_T2D(w, h, rawData, bAutoGenerateMips, bForceGenerateMips);
+	return LoadedT2D;
+}
+
+UTexture2DDynamic * UImageHelper::ConvertTexture2DToTexture2DDynamic(UTexture2D * target)
+{
+	return nullptr;
+}
+
+UTexture2D * UImageHelper::ConvertTexture2DDynamicToTexture2D(UTexture2DDynamic * target)
+{
+	//像素步长
+	UTexture2D *LoadedT2D = UTexture2D::CreateTransient(target->SizeX, target->SizeY,  target->Format);
+
+	FRenderCommandFence Fence;
+
+	Fence.BeginFence();
+	Fence.Wait();
+
+	ENQUEUE_UNIQUE_RENDER_COMMAND_TWOPARAMETER(FConvertTexture2DDynamicToTexture2DCommand,
+		UTexture2DDynamic *, target, target,
+		UTexture2D*, LoadedT2D, LoadedT2D,
+		{
+			uint32 Stride;
+			FTexture2DDynamicResource* res = static_cast<FTexture2DDynamicResource*>(target->Resource);
+
+			uint8* src_ptr = static_cast <uint8*> (RHILockTexture2D(res->GetTexture2DRHI(), 0, EResourceLockMode::RLM_ReadOnly, Stride, false));
+			uint8* dest_ptr = static_cast<uint8*> (LoadedT2D->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE));
+			//FMemory::Memcpy(dest_ptr, src_ptr, target->SizeX * target->SizeY * 4 + 1);
+
+			for (int y = 0; y < target->SizeY; y++)
+			{
+				for (int x = 0; x < target->SizeX; x++)
+				{
+					uint32 idx = Stride / 4 * y + x;
+
+					// B 通道测试
+					*(dest_ptr + x * y * 4 + 0 ) = *(src_ptr + (idx ) * 4 + 0 );
+
+					// G 通道测试
+					*(dest_ptr + x * y * 4 + 1) = *(src_ptr + (idx ) * 4 + 1);
+
+					// R 通道测试
+					*(dest_ptr + x * y * 4 + 2) = *(src_ptr + (idx) * 4 + 2);
+
+					// A 通道测试
+					*(dest_ptr + x * y * 4 + 3) = *(src_ptr + (idx ) * 4 + 3);
+				}
+			}
+
+			LoadedT2D->PlatformData->Mips[0].BulkData.Unlock();
+
+			RHIUnlockTexture2D(res->GetTexture2DRHI(), 0, false);
+			LoadedT2D->UpdateResource();
+
+			UE_LOG(LogTemp, Log, TEXT("render threading  stride: %d  size: %d"), Stride, target->SizeX * target->SizeY * 4);
+		});
+
+	//LoadedT2D->UpdateResource();
 	return LoadedT2D;
 }
 
@@ -371,7 +430,7 @@ void UImageAsyncProcessor::Http_HandleCompleted(FHttpRequestPtr Req, FHttpRespon
 		return;
 	}
 
-#pragma region 从Url判断图片类型/NOte:也可以从Content-Type中判断
+#pragma region 从Url判断图片类型/Note:也可以从Content-Type中判断
 
 	EImageFormat ImageFormat = GetImageFormatFromPath(Url);
 
@@ -389,7 +448,7 @@ void UImageAsyncProcessor::Http_HandleCompleted(FHttpRequestPtr Req, FHttpRespon
 		return;
 	}
 
-	const TArray<uint8>* rawData = nullptr;
+	TArray<uint8>rawData;
 
 	if ( !ImageWrapper->GetRaw(ERGBFormat::BGRA, 8, rawData) )
 	{

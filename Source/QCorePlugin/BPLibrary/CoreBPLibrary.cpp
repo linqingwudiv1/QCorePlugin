@@ -83,8 +83,8 @@ TArray<FString> UCoreBPLibrary::OpenFileDialog( UObject * WorldContextObject,
 	IDesktopPlatform* deskPlatform = nullptr;
 	
 	deskPlatform = FQDesktopPlatformModule::Get();
-	
-	
+
+
 	FString def_path = defPath.IsEmpty() ? FPaths::ProjectDir() : defPath;
 	
 	bool isSuccess = deskPlatform->OpenFileDialog(ParentWindowPtr,
@@ -255,4 +255,9 @@ FString UCoreBPLibrary::GetSoftObjectPtrRefPath(TSoftObjectPtr<class USkeletalMe
 {
 	FSoftObjectPath objPath = ptr.ToSoftObjectPath();
 	return objPath.GetAssetPathString();
+}
+
+UTexture2D * UCoreBPLibrary::ConvertTexture2DDynaimcToTexture2D(UTexture2DDynamic * target)
+{
+	return UImageHelper::ConvertTexture2DDynamicToTexture2D(target);
 }

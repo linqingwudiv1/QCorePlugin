@@ -15,8 +15,6 @@
 
 #define LOCTEXT_NAMESPACE "WebBrowserEx"
 
-
-
 UWebBrowserEx::UWebBrowserEx(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -46,7 +44,6 @@ void UWebBrowserEx::DispatchEvent(const FString & eventName, const FString & par
 	UE_LOG(LogTemp, Log, TEXT("----------------------  js script :%s "),*jsScript);
 
 	this->ExecuteJavascript(jsScript);
-
 }
 
 void UWebBrowserEx::SynchronizeProperties()

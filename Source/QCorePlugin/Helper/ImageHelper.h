@@ -9,6 +9,9 @@
 #include "Interfaces/IHttpRequest.h"
 #include "ImageHelper.generated.h"
 
+
+class UTexture2D;
+class UTexture2DDynamic;
 /**
  * 
  */
@@ -22,18 +25,18 @@ public:
 	void LoadFormURL(const FString &Url, bool  bAutoGenerateMips = true, bool bForceGenerateMips = false);
 	
 	/** */
-	void LoadFormURL(const FString &Url, UObject *target, void(UObject::* bindfunc)(bool, class UTexture2D *), bool  bAutoGenerateMips = true, bool bForceGenerateMips = false);
+	void LoadFormURL(const FString &Url, UObject *target, void(UObject::* bindfunc)(bool, UTexture2D *), bool  bAutoGenerateMips = true, bool bForceGenerateMips = false);
 
 	/** */
 	void LoadFormURL(const FString &Url, void(bindfunc)(bool, UTexture2D *), bool  bAutoGenerateMips = true, bool bForceGenerateMips = false);
 
-	static class UTexture2D * LoadFromDisk(const FString &Path, bool  bAutoGenerateMips = true, bool bForceGenerateMips = false);
+	static UTexture2D * LoadFromDisk(const FString &Path, bool  bAutoGenerateMips = true, bool bForceGenerateMips = false);
 
 #pragma region Delegate Event
 
 public:
 
-	DECLARE_EVENT_TwoParams(FString, FOnLoadCompleted, bool,class UTexture2D*);
+	DECLARE_EVENT_TwoParams(FString, FOnLoadCompleted, bool,UTexture2D*);
 	FOnLoadCompleted& OnLoadCompleted()
 	{
 		return Event_OnLoadCompleted;
@@ -44,6 +47,9 @@ protected:
 
 #pragma endregion
 
+public:
+	static UTexture2DDynamic* ConvertTexture2DToTexture2DDynamic(UTexture2D *target);
+	static UTexture2D* ConvertTexture2DDynamicToTexture2D(UTexture2DDynamic *target);
 };
 
 /** 图片异步处理 */
@@ -63,7 +69,7 @@ public:
 
 public:
 
-	DECLARE_EVENT_TwoParams(FString, FOnLoadCompleted, bool, class UTexture2D*);
+	DECLARE_EVENT_TwoParams(FString, FOnLoadCompleted, bool, UTexture2D*);
 	FOnLoadCompleted& OnLoadCompleted()
 	{
 		return Event_OnLoadCompleted;

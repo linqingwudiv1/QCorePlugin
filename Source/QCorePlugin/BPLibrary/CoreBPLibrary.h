@@ -11,6 +11,9 @@
 #include "CoreBPLibrary.generated.h"
 
 
+class UTexture2D;
+class UTexture2DDynamic;
+
 UENUM(BlueprintType)
 enum class  EM_EFileDialogFlags : uint8
 {
@@ -86,4 +89,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "QCore | Common Function")
 		static FString GetSoftObjectPtrRefPath(TSoftObjectPtr<class USkeletalMesh> ptr);
 
+
+	UFUNCTION(BlueprintPure, BlueprintPure, Category = "QCore | Common Function")
+		static  UTexture2D* ConvertTexture2DDynaimcToTexture2D(UTexture2DDynamic* target);
 };

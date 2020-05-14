@@ -80,7 +80,7 @@ public class QCorePlugin : ModuleRules
             //PrivateDependencyModuleNames.Add("DesktopPlatform");
         }
 
-        //WebBrowser Dependend
+        //WebBrowser Dependency
         if (Target.Type == TargetRules.TargetType.Editor)
         {
             PrivateDependencyModuleNames.AddRange(

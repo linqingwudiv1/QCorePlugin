@@ -4,11 +4,12 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
+#include "Kismet/KismetInputLibrary.h"
+#include "Engine/Engine.h"
 
 #include "GameFramework/PlayerController.h"
 #include "Engine/LocalPlayer.h"
 #include "CoordProjectionBPLibrary.h"
-#include "Engine/Engine.h"
 
 #include "SceneView.h"
 #include "UObject/UObjectIterator.h"
@@ -16,7 +17,7 @@
 FVector2D UCoordProjectionBPLibrary::ProjectWorldToScreenPosition(const FVector& WorldLocation)
 {
 	TObjectIterator<APlayerController> ThePC;
-
+	// 
 	if (!ThePC) 
 	{
 		return FVector2D::ZeroVector;
@@ -133,13 +134,12 @@ TArray<FVector2D> UCoordProjectionBPLibrary::WorldBoxToScreenBox(UObject *WorldC
 
 	arrline.Add(arr2d[4]);
 	arrline.Add(arr2d[7]);
+
 #pragma endregion 
 	
 	return arrline;
 }
 
-
-#include "Kismet/KismetInputLibrary.h"
 
 FVector2D UCoordProjectionBPLibrary::GetMousePosition(UObject * WorldContextObject)
 {

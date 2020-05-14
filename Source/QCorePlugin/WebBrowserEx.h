@@ -22,7 +22,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "UWebBrowserEx")
 		void Init(const FString &Url = TEXT(""), bool bTransparency = false);
-public:
+public: 
 	void DispatchEvent(const FString &eventName, const FString &paramjson);
 
 #pragma region event
