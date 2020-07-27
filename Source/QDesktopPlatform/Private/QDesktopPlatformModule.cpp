@@ -1,6 +1,6 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
-#include "public/QDesktopPlatformModule.h"
+#include "QDesktopPlatformModule.h"
 #include "DesktopPlatformPrivate.h"
 
 IMPLEMENT_MODULE(FQDesktopPlatformModule, QDesktopPlatform );

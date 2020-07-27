@@ -3,8 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PlatformNamedPipe.h"
-#include "Object.h"
+#include "UObject/Object.h"
+#include "Core/Public/HAL/PlatformNamedPipe.h"
+
 #include "NamedPipeHelper.generated.h"
 /**
  * 
@@ -14,6 +15,7 @@ class QCOREPLUGIN_API UNamedPipeHelper: public UObject
 {
 	GENERATED_BODY()
 protected:
+	/**  */
 	UNamedPipeHelper();
 
 public:
@@ -21,10 +23,12 @@ public:
 													bool bServer = false, 
 													bool bAsync = true );
 
-	//返回pipe管线
+	/** 返回pipe管线 */
 	FPlatformNamedPipe* GetNamedPipe();
 
 protected:
+
+	/**  */
 	FPlatformNamedPipe NamedPipe;
 
 	FString PipeName;

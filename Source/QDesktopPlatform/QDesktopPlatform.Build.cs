@@ -18,6 +18,8 @@ public class QDesktopPlatform : ModuleRules
 
         PrivateIncludePaths.Add( PrivateDirectory );
 
+		PublicIncludePaths.Add(Path.GetFullPath(Path.Combine(ModuleDirectory, "Public/")));
+
 		PrivateDependencyModuleNames.AddRange(
 			new string[] {
 				"Core",

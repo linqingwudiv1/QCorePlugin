@@ -12,16 +12,23 @@
 #include "Engine/StaticMesh.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetInputLibrary.h"
-#include "Regex.h"
+#include "Internationalization/Regex.h"
 
-
+// 
 #include "Framework/Application/SlateApplication.h"
 #include "Widgets/SViewport.h"
 
-//
+// 
 #include "IDesktopPlatform.h"
+#if UE_BUILD_SHIPPING
 #include "QDesktopPlatformModule.h"
+#else
+#include "DesktopPlatformModule.h"
+#endif
 
+
+
+// 
 #include "Helper/ImageHelper.h"
 
 #pragma region Static Method
@@ -50,12 +57,15 @@ static bool IsAllowedChar(UTF8CHAR LookupChar)
 
 #pragma endregion
 
-
 UCoreBPLibrary::UCoreBPLibrary(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 }
 
+FString UCoreBPLibrary::GetPointerAddress(UObject* obj) 
+{
+	return FString::Printf(TEXT("%p"), obj);
+}
 
 bool UCoreBPLibrary::RegexMatch(const FString& Str, const FString& Pattern, TArray<FString>& Result)
 {
@@ -70,8 +80,6 @@ bool UCoreBPLibrary::RegexMatch(const FString& Str, const FString& Pattern, TArr
 	return Result.Num() == 0 ? false : true;
 }
 
-
-
 TArray<FString> UCoreBPLibrary::OpenFileDialog( UObject * WorldContextObject,
 												const FString &Title  ,
 												const FString defPath ,
@@ -81,10 +89,13 @@ TArray<FString> UCoreBPLibrary::OpenFileDialog( UObject * WorldContextObject,
 	void* ParentWindowPtr = FSlateApplication::Get().GetActiveTopLevelWindow()->GetNativeWindow()->GetOSWindowHandle();
 	TArray<FString> arr_outfile;
 	IDesktopPlatform* deskPlatform = nullptr;
-	
+
+#if UE_BUILD_SHIPPING
 	deskPlatform = FQDesktopPlatformModule::Get();
-
-
+#else
+	deskPlatform = FDesktopPlatformModule::Get();
+#endif
+	
 	FString def_path = defPath.IsEmpty() ? FPaths::ProjectDir() : defPath;
 	
 	bool isSuccess = deskPlatform->OpenFileDialog(ParentWindowPtr,
@@ -96,11 +107,6 @@ TArray<FString> UCoreBPLibrary::OpenFileDialog( UObject * WorldContextObject,
 		arr_outfile);
 	
 	return arr_outfile;
-}
-
-UTexture2D * UCoreBPLibrary::LoadTexture2DFromDisk(const FString &Path, bool  bAutoGenerateMips, bool bForceGenerateMips)
-{
-	return UImageHelper::LoadFromDisk(Path, bAutoGenerateMips, bForceGenerateMips);
 }
 
 int32 UCoreBPLibrary::GetMeshMaterialNum(UStaticMesh * mesh)
@@ -120,76 +126,6 @@ bool UCoreBPLibrary::executeShellCMD(const FString & cmd)
 	UE_LOG(LogTemp, Error, TEXT("platform is not support"));
 	return false;
 #endif
-}
-
-#include <iostream>
-#include "string.h"
-#define Buffer_Size 30
-FString UCoreBPLibrary::ReadFromIPC(UObject * WorldContextObject)
-{
-	FString ret_result = TEXT("");
-	
-	uint8 arr_data[Buffer_Size] = { 0 };
-	
-	UCoreBPLibrary::GetNamedPipe()->ReadBytes( Buffer_Size, arr_data );
-	
-	const std::string cstr(reinterpret_cast<const char*>(arr_data), Buffer_Size );
-	
-	UE_LOG(LogTemp, Log, TEXT("-----------------------中文linqing字符串测试@#$%Test"));
-	
-	ret_result = FString(cstr.c_str());
-	
-	return ret_result;
-}
-
-bool UCoreBPLibrary::WriteFromIPC(UObject * WorldContextObject)
-{
-	char* str = "abc123456";
-	
-	bool result = UCoreBPLibrary::GetNamedPipe()->WriteBytes(10, str);
-	
-	while(true)
-	{
-		if (!UCoreBPLibrary::bIsRW(WorldContextObject)) 
-		{
-			continue;
-		}
-	
-		uint8 buffer[128];
-		bool read_result = UCoreBPLibrary::GetNamedPipe()->ReadBytes( 128 * sizeof(uint8) , buffer);
-		
-		std::string cstr(reinterpret_cast<const char*>(buffer), 128 * sizeof(uint8));
-		FString temp_str = FString(cstr.c_str());
-	
-		UE_LOG(LogTemp, Log, TEXT("-----------------------  %s \r\n  ,	\
-								   ----------------------- %s"), buffer, *temp_str)
-		break;
-	}
-	
-	return result;
-}
-
-bool UCoreBPLibrary::bIsRW(UObject * WorldContextObject)
-{
-	return UCoreBPLibrary::GetNamedPipe()->IsReadyForRW();
-}
-
-FPlatformNamedPipe* UCoreBPLibrary::GetNamedPipe(const FString& PipeName, bool bServer, bool bAsync)
-{
-	static FPlatformNamedPipe p;
-	const int BufferSize = 128;
-	//static bCreate
-	if (!p.IsCreated())
-	{
-		bool isSuccess = p.Create(PipeName, bServer, bAsync);
-		
-		if (!isSuccess) 
-		{
-			return nullptr;
-		}
-	}
-
-	return &p;
 }
 
 
@@ -226,7 +162,7 @@ void UCoreBPLibrary::AdjustViewportSize(UObject * WorldContextObject, FMargin pa
 	{
 
 		UGameViewportClient* gameViewport = GEngine->GameViewport;
-		//WorldObjectContext->GetWorld()->App
+		
 		FVector2D ViewportSize;
 		
 		gameViewport->GetViewportSize(ViewportSize);
@@ -247,17 +183,14 @@ void UCoreBPLibrary::AdjustViewportSize(UObject * WorldContextObject, FMargin pa
 
 			gameViewport->SplitscreenInfo[0].PlayerData[0].SizeX   = relativeMat.Right;
 			gameViewport->SplitscreenInfo[0].PlayerData[0].SizeY   = relativeMat.Bottom;
+
 		}
 	}
 }
 
-FString UCoreBPLibrary::GetSoftObjectPtrRefPath(TSoftObjectPtr<class USkeletalMesh> ptr)
-{
-	FSoftObjectPath objPath = ptr.ToSoftObjectPath();
-	return objPath.GetAssetPathString();
-}
 
 UTexture2D * UCoreBPLibrary::ConvertTexture2DDynaimcToTexture2D(UTexture2DDynamic * target)
 {
 	return UImageHelper::ConvertTexture2DDynamicToTexture2D(target);
 }
+

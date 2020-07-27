@@ -20,9 +20,13 @@
 
 #include "Components/TextBlock.h"
 
-#include "Runtime/UMG/Public/Blueprint/WidgetBlueprintLibrary.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
+#include "QDialogTitlebar.h"
 
 #define LOCTEXT_NAMESPACE "UMG"
+
+
+
 
 UQDialogContainer::UQDialogContainer(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
@@ -37,9 +41,9 @@ UQDialogContainer::UQDialogContainer(const FObjectInitializer& ObjectInitializer
 	DefaultFont.Size = 10;
 
 	this->OnClose().AddLambda([=](UQDialogContainer* dialog)
-		{
-			this->OnClose_BP.Broadcast(dialog);
-		});
+	{
+		this->OnClose_BP.Broadcast(dialog);
+	});
 }
 
 UQDialogContainer::UQDialogContainer() 
@@ -47,55 +51,90 @@ UQDialogContainer::UQDialogContainer()
 }
 
 #if WITH_EDITOR
+
 const FText UQDialogContainer::GetPaletteCategory()
 {
-	return LOCTEXT("zuomieye", "zuomieye");
+	return LOCTEXT("QUI", "QUI");
 }
+
 #endif
 
-TSharedRef<SWidget> UQDialogContainer::RebuildWidget()
+
+TSharedRef<SWidget> UQDialogContainer::CreateTitlebar()
 {
-	TSharedRef<SBorder, ESPMode::NotThreadSafe > temprorary = 
-		SNew(SBorder)
+	if (this->DefaultTitlebarClass)
+	{
+		UQDialogTitlebar* TitlebarWgt = CreateWidget<UQDialogTitlebar>(this, this->DefaultTitlebarClass);
+
+		TitlebarWgt->Title = this->TitleText;
+		TitlebarWgt->OnClose().AddUObject(this, &UQDialogContainer::HandleClose);
+		//事件响应CreateTitlebar
+
+		TSharedRef<SBorder, ESPMode::NotThreadSafe > TitleBar = SNew(SBorder)
+		[
+			TitlebarWgt->TakeWidget()
+		]
+			.BorderImage(&TitleBrush)
+			.OnMouseButtonDown(	BIND_UOBJECT_DELEGATE(FPointerEventHandler, HandleTitleBarMouseDown)	)
+			.OnMouseButtonUp  (	BIND_UOBJECT_DELEGATE(FPointerEventHandler, HandleTitleBarMouseUp)	)
+			.Padding(FMargin{ 0.0f, 0.0f, 0.0f, 0.0f })
+			.HAlign(EHorizontalAlignment::HAlign_Fill)
+			.VAlign(EVerticalAlignment::VAlign_Fill);
+
+		return TitleBar;
+	}
+	else
+	{
+		TSharedRef<SBorder, ESPMode::NotThreadSafe > TitleBar =
+			SNew(SBorder)
 			[
 				SNew(SBorder)
 				[
 					SNew(SHorizontalBox) +
 					SHorizontalBox::Slot()
-					[
-						SNew(STextBlock).Text(TitleText).Font(DefaultFont)
-					]
-					.FillWidth(1)
-					.VAlign(EVerticalAlignment::VAlign_Center) +
-					SHorizontalBox::Slot()
-					[
-						SNew(SButton)
-						[
-							SNew(STextBlock).Text(LOCTEXT("X", "X")).Font(DefaultFont)
-						]
-					.ContentPadding(FMargin{ 10,0 })
-					.OnClicked(BIND_UOBJECT_DELEGATE(FOnClicked, HandleCloseBtnClick))
-					].AutoWidth()
-					.HAlign(EHorizontalAlignment::HAlign_Right)
+			[
+				SNew(STextBlock).Text(TitleText).Font(DefaultFont)
+			]
+		.FillWidth(1)
+			.VAlign(EVerticalAlignment::VAlign_Center) +
+			SHorizontalBox::Slot()
+			[
+				SNew(SButton)
+				[
+					SNew(STextBlock).Text(LOCTEXT("X", "X")).Font(DefaultFont)
 				]
-				.BorderImage(&TitleBrush)
-				.OnMouseButtonDown(BIND_UOBJECT_DELEGATE(FPointerEventHandler, HandleTitleBarMouseDown))
-				.OnMouseButtonUp(BIND_UOBJECT_DELEGATE(FPointerEventHandler, HandleTitleBarMouseUp))
-				.ForegroundColor(FLinearColor(FColor{ 0xf0, 0xf0, 0xf0 }))
-				.BorderBackgroundColor(TitleBrushColor)
-				.HAlign(EHorizontalAlignment::HAlign_Fill)
-				.VAlign(EVerticalAlignment::VAlign_Center)
+		.ContentPadding(FMargin{ 10,0 })
+			.OnClicked(BIND_UOBJECT_DELEGATE(FOnClicked, HandleCloseBtnClick))
+			].AutoWidth()
+			.HAlign(EHorizontalAlignment::HAlign_Right)
+				]
+		.BorderImage(&TitleBrush)
+			.OnMouseButtonDown(BIND_UOBJECT_DELEGATE(FPointerEventHandler, HandleTitleBarMouseDown))
+			.OnMouseButtonUp(BIND_UOBJECT_DELEGATE(FPointerEventHandler, HandleTitleBarMouseUp))
+			.ForegroundColor(FLinearColor(FColor{ 0xf0, 0xf0, 0xf0 }))
+			.BorderBackgroundColor(TitleBrushColor)
+			.HAlign(EHorizontalAlignment::HAlign_Fill)
+			.VAlign(EVerticalAlignment::VAlign_Center)
 			].Padding(FMargin{ 0.0,0.0,0.0,1.0f }).BorderImage(&BorderLineBrush);
 
 
-	//border start
+		return TitleBar;
+	}
+}
+
+
+TSharedRef<SWidget> UQDialogContainer::RebuildWidget()
+{
+
+	TSharedRef<SWidget>  TitleBar = CreateTitlebar();
+
 	Border_TL = SNew(SBorder)
 				[
 					SNew(SBox)
 					[
 						SNew(SImage).Image(&BorderLineBrush)
-					].WidthOverride(DialogPadding.Left)
-					 .HeightOverride(DialogPadding.Top)
+					].WidthOverride(DialogBorderSize.Left)
+					 .HeightOverride(DialogBorderSize.Top)
 					 .VAlign(EVerticalAlignment::VAlign_Bottom)
 					 .HAlign(EHorizontalAlignment::HAlign_Right)
 				] .BorderImage(&BorderBrush)
@@ -116,8 +155,8 @@ TSharedRef<SWidget> UQDialogContainer::RebuildWidget()
 					SNew(SBox)
 					[
 						SNew(SImage).Image(&BorderLineBrush)
-					].WidthOverride(DialogPadding.Right)
-				     .HeightOverride(DialogPadding.Top)
+					].WidthOverride(DialogBorderSize.Right)
+				     .HeightOverride(DialogBorderSize.Top)
 					 .VAlign(EVerticalAlignment::VAlign_Bottom)
 					 .HAlign(EHorizontalAlignment::HAlign_Left)
 				]
@@ -135,8 +174,7 @@ TSharedRef<SWidget> UQDialogContainer::RebuildWidget()
 									]
 								  .HAlign(EHorizontalAlignment::HAlign_Right)
 								  .Padding(FMargin{ 0.0f });
-
-
+	
 	Border_MShortR = SNew(SBorder).BorderImage(&BorderBrush)
 								  .Cursor(EMouseCursor::ResizeLeftRight)
 								  .OnMouseButtonDown(BIND_UOBJECT_DELEGATE(FPointerEventHandler, HandleBorderAreaDown))
@@ -150,8 +188,8 @@ TSharedRef<SWidget> UQDialogContainer::RebuildWidget()
 
 	Border_ML = SNew(SBorder).BorderImage(&BorderBrush)
 							 .Cursor(EMouseCursor::ResizeLeftRight)
-							 .OnMouseButtonDown(BIND_UOBJECT_DELEGATE(FPointerEventHandler, HandleBorderAreaDown))
-							 .OnMouseButtonUp(BIND_UOBJECT_DELEGATE(FPointerEventHandler, HandleBorderAreaUp))
+							 .OnMouseButtonDown(BIND_UOBJECT_DELEGATE(FPointerEventHandler, HandleBorderAreaDown ))
+							 .OnMouseButtonUp(BIND_UOBJECT_DELEGATE(FPointerEventHandler, HandleBorderAreaUp	 ))
 							 [
 							 	SNew(SImage).Image(&BorderLineBrush)
 							 ]
@@ -160,11 +198,11 @@ TSharedRef<SWidget> UQDialogContainer::RebuildWidget()
 
 	Border_MR = SNew(SBorder).BorderImage(&BorderBrush)
 							 .Cursor(EMouseCursor::ResizeLeftRight)
-							 .OnMouseButtonDown(BIND_UOBJECT_DELEGATE(FPointerEventHandler, HandleBorderAreaDown))
-							 .OnMouseButtonUp(BIND_UOBJECT_DELEGATE(FPointerEventHandler, HandleBorderAreaUp))
-							 	[
-							 		SNew(SImage).Image(&BorderLineBrush)
-							 	]
+							 .OnMouseButtonDown	( BIND_UOBJECT_DELEGATE(FPointerEventHandler, HandleBorderAreaDown	))
+							 .OnMouseButtonUp	( BIND_UOBJECT_DELEGATE(FPointerEventHandler, HandleBorderAreaUp	))
+							 [
+							 	SNew(SImage).Image(&BorderLineBrush)
+							 ]
 							 .HAlign(EHorizontalAlignment::HAlign_Left)
 							 .Padding(FMargin{ 0.0f });
 
@@ -173,21 +211,22 @@ TSharedRef<SWidget> UQDialogContainer::RebuildWidget()
 		SNew(SBox)
 		[
 			SNew(SImage).Image(&BorderLineBrush)
-		].WidthOverride(DialogPadding.Left)
-		.HeightOverride(DialogPadding.Bottom)
-		.VAlign(EVerticalAlignment::VAlign_Top)
-		.HAlign(EHorizontalAlignment::HAlign_Right)
+		].WidthOverride(DialogBorderSize.Left)
+		 .HeightOverride(DialogBorderSize.Bottom)
+
+		 .VAlign(EVerticalAlignment::VAlign_Top)
+		 .HAlign(EHorizontalAlignment::HAlign_Right)
 
 	].BorderImage(&BorderBrush)
      .Cursor(EMouseCursor::ResizeSouthWest)
-	 .OnMouseButtonDown(BIND_UOBJECT_DELEGATE (	FPointerEventHandler, HandleBorderAreaDown))
-	 .OnMouseButtonUp(BIND_UOBJECT_DELEGATE(	FPointerEventHandler, HandleBorderAreaUp))
+	 .OnMouseButtonDown(	BIND_UOBJECT_DELEGATE (	FPointerEventHandler, HandleBorderAreaDown)	)
+	 .OnMouseButtonUp(		BIND_UOBJECT_DELEGATE(	FPointerEventHandler, HandleBorderAreaUp)	)
 	 .Padding(FMargin{ 0.0f });
 	
 	Border_BC = SNew(SBorder).BorderImage(&BorderBrush)
 		                     .Cursor(EMouseCursor::ResizeUpDown)
-							 .OnMouseButtonDown(BIND_UOBJECT_DELEGATE(FPointerEventHandler, HandleBorderAreaDown))
-							 .OnMouseButtonUp(BIND_UOBJECT_DELEGATE(FPointerEventHandler, HandleBorderAreaUp))
+							 .OnMouseButtonDown(	BIND_UOBJECT_DELEGATE(FPointerEventHandler, HandleBorderAreaDown ))
+							 .OnMouseButtonUp  (	BIND_UOBJECT_DELEGATE(FPointerEventHandler, HandleBorderAreaUp	 ))
 							 [
 							 	SNew(SImage).Image(&BorderLineBrush)
 							 ].VAlign(EVerticalAlignment::VAlign_Top)
@@ -198,8 +237,8 @@ TSharedRef<SWidget> UQDialogContainer::RebuildWidget()
 		SNew(SBox)
 		[
 			SNew(SImage).Image(&BorderLineBrush)
-		].WidthOverride(DialogPadding.Right)
-		 .HeightOverride(DialogPadding.Bottom)
+		].WidthOverride(DialogBorderSize.Right)
+		 .HeightOverride(DialogBorderSize.Bottom)
 		 .VAlign(EVerticalAlignment::VAlign_Top)
 		 .HAlign(EHorizontalAlignment::HAlign_Left)
 
@@ -212,14 +251,15 @@ TSharedRef<SWidget> UQDialogContainer::RebuildWidget()
 	//border end
 
 	MyBorder = SNew(SBorder);
-														   //标题区域				
+
+	// 标题区域	Title Area			
 	TSharedRef<SGridPanel> Title_Grid = SNew(SGridPanel) + SGridPanel::Slot(0, 0)[Border_TL.ToSharedRef()]
 														 + SGridPanel::Slot(1, 0)[Border_TC.ToSharedRef()]
 														 + SGridPanel::Slot(2, 0)[Border_TR.ToSharedRef()]
 														 + SGridPanel::Slot(0, 1)[Border_MShortL.ToSharedRef()]
-														 + SGridPanel::Slot(1, 1)[temprorary]
+														 + SGridPanel::Slot(1, 1)[TitleBar]
 														 + SGridPanel::Slot(2, 1)[Border_MShortR.ToSharedRef()]
-														   //内容区域
+														 // 内容区域   Content Area
 														 + SGridPanel::Slot(0, 2)[Border_ML.ToSharedRef()].Padding(FMargin{ 0.0f })
 														 + SGridPanel::Slot(1, 2).Padding(FMargin{ 0.0f })
 														 [
@@ -239,7 +279,6 @@ TSharedRef<SWidget> UQDialogContainer::RebuildWidget()
 
 	Title_Grid->SetRowFill(2, 1.0f);
 	Title_Grid->SetRowFill(3, 0.0f);
-
 
 	auto ret_wgt = SNew(SBorder)[ Title_Grid ]
 								.BorderImage(&BorderBrush).Padding(FMargin{ 0.0f })
@@ -266,6 +305,16 @@ FReply UQDialogContainer::HandleTitleBarMouseUp(const FGeometry &geo, const FPoi
 	return FReply::Handled();
 }
 
+void UQDialogContainer::HandleDialogTitleBarMouseDown(const FGeometry& geo, const FPointerEvent& ev)
+{
+	OnTitleMouseDown().Broadcast(this, geo, ev);
+}
+
+void UQDialogContainer::HandleDialogTitleBarMouseUp(const FGeometry& geo, const FPointerEvent& ev)
+{
+	OnTitleMouseUp().Broadcast(this, geo, ev);
+}
+
 FReply UQDialogContainer::HandleMouseMove(const FGeometry & geo, const FPointerEvent & ev)
 {
 	return FReply::Handled();
@@ -274,13 +323,12 @@ FReply UQDialogContainer::HandleMouseMove(const FGeometry & geo, const FPointerE
 FReply UQDialogContainer::HandleBorderAreaDown(const FGeometry & geo, const FPointerEvent & ev)
 {
 	//方向判断
-
 	if (Border_TL->IsHovered())
 	{
 		//西北 North Western
 		OnResizingSize().Broadcast(this, EM_DialogScaleDirection::EM_Decrease, EM_DialogScaleDirection::EM_Decrease, geo, ev);
 	}
-
+	
 	if (Border_TC->IsHovered())
 	{
 		//北 North
@@ -334,8 +382,13 @@ FReply UQDialogContainer::HandleBorderAreaUp(const FGeometry & geo, const FPoint
 
 FReply UQDialogContainer::HandleCloseBtnClick()
 {
-	OnClose().Broadcast(this);
+	this->HandleClose();
 	return FReply::Handled();
+}
+
+void UQDialogContainer::HandleClose()
+{
+	OnClose().Broadcast(this);
 }
 
 #undef LOCTEXT_NAMESPACE

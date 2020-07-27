@@ -1,9 +1,9 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
-#include "SplitterComponentSlot.h"
+#include "QSplitterSlot.h"
 
 
-#include "CppWgt_SpliterComponent.h"
+#include "QSpliter.h"
 
 #include "Components/Widget.h"
 
@@ -15,20 +15,20 @@
 /////////////////////////////////////////////////////
 // UHorizontalBoxSlot
 
-USplitterComponentSlot::USplitterComponentSlot(const FObjectInitializer& ObjectInitializer)
+UQSplitterSlot::UQSplitterSlot(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	Slot = NULL;
 }
 
-void USplitterComponentSlot::ReleaseSlateResources(bool bReleaseChildren)
+void UQSplitterSlot::ReleaseSlateResources(bool bReleaseChildren)
 {
 	Super::ReleaseSlateResources(bReleaseChildren);
 
 	Slot = NULL;
 }
 
-void USplitterComponentSlot::Handle_OnSlotResized(float val)
+void UQSplitterSlot::Handle_OnSlotResized(float val)
 {
 	if (Slot == nullptr)
 	{
@@ -41,14 +41,14 @@ void USplitterComponentSlot::Handle_OnSlotResized(float val)
 	this->OnSplitteItemResize().Broadcast(Content, val);
 }
 
-UWidget * USplitterComponentSlot::GetContentWidget() const
+UWidget * UQSplitterSlot::GetContentWidget() const
 {
 	return this->Content;
 }
 
-float USplitterComponentSlot::GetSize() const
+float UQSplitterSlot::GetSize() const
 {
-	UCppWgt_SpliterComponent* splitter = Cast<UCppWgt_SpliterComponent>(this->Parent);
+	UQSpliter* splitter = Cast<UQSpliter>(this->Parent);
 
 	FVector2D size = splitter->GetCachedGeometry ().GetLocalSize();
 
@@ -76,7 +76,7 @@ float USplitterComponentSlot::GetSize() const
 
 	for (auto slot : splitter->GetSlots())
 	{
-		USplitterComponentSlot* SplitterSlot = Cast<USplitterComponentSlot>(slot);
+		UQSplitterSlot* SplitterSlot = Cast<UQSplitterSlot>(slot);
 
 		if ( SplitterSlot == nullptr )
 		{
@@ -91,7 +91,7 @@ float USplitterComponentSlot::GetSize() const
 	return ret_len;
 }
 
-void USplitterComponentSlot::BuildSlot(TSharedRef<SSplitter> SplitterCom)
+void UQSplitterSlot::BuildSlot(TSharedRef<SSplitter> SplitterCom)
 {
 	Slot = &SplitterCom->AddSlot()
 	[
@@ -100,12 +100,12 @@ void USplitterComponentSlot::BuildSlot(TSharedRef<SSplitter> SplitterCom)
 
 	TBaseDelegate<void, float> delegate_event;
 
-	delegate_event.BindUObject(this, &USplitterComponentSlot::Handle_OnSlotResized);
+	delegate_event.BindUObject(this, &UQSplitterSlot::Handle_OnSlotResized);
 
 	Slot->OnSlotResized( delegate_event );
 }
 
-void USplitterComponentSlot::SynchronizeProperties()
+void UQSplitterSlot::SynchronizeProperties()
 {
 	Super::SynchronizeProperties();
 }

@@ -5,33 +5,35 @@
 #include "CoreMinimal.h"
 
 #include "Runtime/UMG/Public/Components/PanelWidget.h"
-#include "CppWgt_SpliterComponent.generated.h"
+//#include "UMG/Splitter/CppWgt_BaseSplitter.h"
+#include "QSpliter.generated.h"
 
 
 
 UENUM(BlueprintType)
 enum class EM_SplitterDirectionType : uint8
 {
-	EM_Vertical			UMETA(DisplayName = "Vertical"		) ,
-	EM_Horizontal		UMETA(DisplayName = "Horizontal"	)
+	EM_Vertical			UMETA( DisplayName = "Vertical"		) ,
+	EM_Horizontal		UMETA( DisplayName = "Horizontal"	)
 };
 
 
 UENUM(BlueprintType)
 enum class EM_SplitterResizeMode : uint8
 {
-	EM_FixedPosition	UMETA(DisplayName = "FixedPosition"	) ,
-	EM_FixedSize		UMETA(DisplayName = "FixedSize"		) ,
-	EM_Fill				UMETA(DisplayName = "Fill"			)
+	EM_FixedPosition	UMETA( DisplayName = "FixedPosition"	) ,
+	EM_FixedSize		UMETA( DisplayName = "FixedSize"		) ,
+	EM_Fill				UMETA( DisplayName = "Fill"				)
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSplitteResize,UWidget*, wgt, float, val);
-DECLARE_DYNAMIC_DELEGATE_OneParam(FOnSplitteResize1, UWidget*, wgt);
+
+class  SSplitterEx;
+
 /**
  *
  */
 UCLASS()
-class QUMG_API UCppWgt_SpliterComponent : public UPanelWidget
+class QUMG_API UQSpliter : public UPanelWidget
 {
 	GENERATED_BODY()
 public:
@@ -45,8 +47,13 @@ public:
 
 	virtual void ReleaseSlateResources(bool bReleaseChildren) override;
 public:
+#pragma region Event
+	
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSplitteResize, UWidget*, wgt, float, val);
 	UPROPERTY(BlueprintAssignable, Category = "Spliter | Event")
 		FOnSplitteResize OnSplitteItemResize;
+
+#pragma endregion Event
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Variant")
 		float HandSize = 8.0f;
@@ -56,6 +63,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Variant")
 		EM_SplitterResizeMode ResizeMode = EM_SplitterResizeMode::EM_FixedPosition;
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "Spliter | Function")
 		///获取未收起隐藏的Children数量
@@ -71,8 +79,8 @@ protected:
 
 	// UPanelWidget
 	virtual UClass* GetSlotClass() const override;
-	virtual void OnSlotAdded   ( UPanelSlot* Slot ) override;
-	virtual void OnSlotRemoved ( UPanelSlot* Slot ) override;
+	virtual void OnSlotAdded(UPanelSlot* slot) override;
+	virtual void OnSlotRemoved(UPanelSlot* slot) override;
 	// End UPanelWidget
 protected:
 	void Handle_OnSplitteItemResize(UWidget* wgt, float val);
@@ -83,5 +91,21 @@ protected:
 protected:
 	// UWidget interface
 	virtual TSharedRef<SWidget> RebuildWidget() override;
-	// End of UWidget interfa
+	// End of UWidget interface
 };
+
+
+
+/** Splitter extend */
+class QUMG_API SSplitterEx : public SSplitter
+{
+public:
+	virtual int32 OnPaint(const FPaintArgs& Args,
+		const FGeometry& AllottedGeometry,
+		const FSlateRect& MyCullingRect,
+		FSlateWindowElementList& OutDrawElements,
+		int32 LayerId,
+		const FWidgetStyle& InWidgetStyle,
+		bool bParentEnabled) const override;
+};
+

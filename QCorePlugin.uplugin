@@ -17,7 +17,12 @@
     {
       "Name": "QCorePlugin",
       "Type": "Runtime",
-      "LoadingPhase": "PreLoadingScreen"
+      "LoadingPhase": "PreDefault"
+    },
+    {
+      "Name": "QUMG",
+      "Type": "Runtime",
+      "LoadingPhase": "PreDefault"
     }
   ],
   "Plugins": [

@@ -18,7 +18,7 @@ class UTexture2DDynamic;
 UCLASS()
 class QCOREPLUGIN_API UImageHelper : public UObject
 {
-	GENERATED_BODY()
+	GENERATED_UCLASS_BODY()
 
 public:
 	/** */
@@ -32,6 +32,9 @@ public:
 
 	static UTexture2D * LoadFromDisk(const FString &Path, bool  bAutoGenerateMips = true, bool bForceGenerateMips = false);
 
+
+public:
+	bool bLoading = false;
 #pragma region Delegate Event
 
 public:
@@ -41,9 +44,19 @@ public:
 	{
 		return Event_OnLoadCompleted;
 	}
-
 protected:
 	FOnLoadCompleted Event_OnLoadCompleted;
+
+
+public:
+	DECLARE_EVENT_OneParam(FString, FOnLoadProgress, float)
+	FOnLoadProgress& OnLoadProgress()
+	{
+		return Event_OnLoadProgress;
+	}
+
+protected:
+	FOnLoadProgress Event_OnLoadProgress;
 
 #pragma endregion
 
@@ -65,17 +78,27 @@ public:
 	/** */
 	void Http_HandleCompleted(FHttpRequestPtr Req, FHttpResponsePtr Res, bool bConnectedSuccessfully);
 
+	void Http_Progress(FHttpRequestPtr Request, int32 BytesSent, int32 BytesReceived);
 #pragma region Delegate Event
-
 public:
 
-	DECLARE_EVENT_TwoParams(FString, FOnLoadCompleted, bool, UTexture2D*);
-	FOnLoadCompleted& OnLoadCompleted()
+	DECLARE_EVENT_TwoParams(FString, FEvent_OnLoadCompleted, bool, UTexture2D*);
+	FEvent_OnLoadCompleted& OnLoadCompleted()
 	{
 		return Event_OnLoadCompleted;
 	}
+
+
+	DECLARE_EVENT_OneParam(FString, FEvent_OnLoadProgress,  float);
+	FEvent_OnLoadProgress& OnLoadProgress()
+	{
+		return Event_OnLoadProgress;
+	}
+
+
 protected:
-	FOnLoadCompleted Event_OnLoadCompleted;
+	FEvent_OnLoadCompleted Event_OnLoadCompleted;
+	FEvent_OnLoadProgress Event_OnLoadProgress;
 #pragma endregion
 
 private:

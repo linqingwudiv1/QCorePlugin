@@ -11,7 +11,7 @@
  *
  */
 UCLASS(Abstract)
-class  UCppWgt_BaseTabContainer : public UUserWidget
+class QUMG_API UCppWgt_BaseTabContainer : public UUserWidget
 {
 	GENERATED_BODY()
 protected:

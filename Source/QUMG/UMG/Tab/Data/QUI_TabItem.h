@@ -8,20 +8,24 @@
  * 
  */
 USTRUCT(BlueprintType)
-struct  FQUI_TabItem
+struct QUMG_API FQUI_TabItem
 {
 	GENERATED_USTRUCT_BODY()
 
 public:
+	/**  */
 	FQUI_TabItem()
 	{
 	
 	}
 
 public:
+	/**  */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CppVariant")
 		FString Name;
 
+	/**  */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CppVariant")
 		FString ImgPath;
+
 };

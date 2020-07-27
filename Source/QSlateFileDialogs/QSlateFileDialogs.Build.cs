@@ -15,7 +15,7 @@ public class QSlateFileDialogs : ModuleRules
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
         PrivatePCHHeaderFile = Path.GetFullPath(Path.Combine(PrivateDirectory, "SlateFileDialogsPrivate.h"));
-
+        
         PrivateDependencyModuleNames.AddRange(
             new string[] {
                 "Core"              ,

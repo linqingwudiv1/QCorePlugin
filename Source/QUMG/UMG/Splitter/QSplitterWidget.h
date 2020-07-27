@@ -5,22 +5,24 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 
-#include "SUserWidget.h"
+#include "Widgets/SUserWidget.h"
 #include "Components/PanelWidget.h"
 #include "Runtime/Slate/Public/Widgets/Layout/SSplitter.h"
-#include "CppWgt_BaseSplitter.generated.h"
+#include "QSplitterWidget.generated.h"
 
 /**
  * Slate分割控件/UMG封装类
  */
 UCLASS()
-class QUMG_API UCppWgt_BaseSplitter : public UUserWidget
+class QUMG_API UQSplitterWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:	
+
 #if WITH_EDITOR
 	virtual const FText GetPaletteCategory()  override;	
 #endif
+
 protected:
 	virtual TSharedRef<SWidget> RebuildWidget() override;
 };
@@ -29,7 +31,7 @@ UCLASS()
 class QUMG_API UCppWgt_UPanelWidget : public UPanelWidget
 {
 	GENERATED_BODY()
-
+	
 };
 
 class QUMG_API SMySlateWidget : public SUserWidget
@@ -45,16 +47,3 @@ class QUMG_API SMySlateWidget : public SUserWidget
 	protected:
 		FSlateBrush brush;
 };
-
-class  SSplitterEx : public SSplitter
-{
-	public:
-		virtual int32 OnPaint(const FPaintArgs& Args, 
-							  const FGeometry& AllottedGeometry, 
-							  const FSlateRect& MyCullingRect, 
-							  FSlateWindowElementList& OutDrawElements, 
-							  int32 LayerId, 
-							  const FWidgetStyle& InWidgetStyle, 
-							  bool bParentEnabled) const override;
-};
-

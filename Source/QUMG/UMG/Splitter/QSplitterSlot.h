@@ -8,47 +8,58 @@
 #include "Components/PanelSlot.h"
 #include "Components/SlateWrapperTypes.h"
 
-#include "Runtime/Slate/Public/Widgets/Layout/SSplitter.h"
+#include "Widgets/Layout/SSplitter.h"
 
-#include "SplitterComponentSlot.generated.h"
-
-
+#include "QSplitterSlot.generated.h"
 
 UCLASS()
-class QUMG_API USplitterComponentSlot : public UPanelSlot
+class QUMG_API UQSplitterSlot : public UPanelSlot
 {
 	GENERATED_UCLASS_BODY()
 public :
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Layout|Spliter Slot")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Slot | QSpliter Slot")
 		float SizeValue = 1.0f;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Variant")
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Slot | QSpliter Slot")
 		///	Unit DPI
 		float MinSize = 0.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Variant")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Slot | QSpliter Slot")
 		/// Unit DPI
 		float MaxSize = 0.0f;
-public:
-	// Event
-	DECLARE_EVENT_TwoParams(FString, FEvent_OnSplitteItemResize,UWidget* , float )
-	FEvent_OnSplitteItemResize &  OnSplitteItemResize() { return Event_OnSplitteItemResize; }
 
 public:
+#pragma region event
+	DECLARE_EVENT_TwoParams(FString, FEvent_OnSplitteItemResize, UWidget*, float)
+	FEvent_OnSplitteItemResize& OnSplitteItemResize() { return Event_OnSplitteItemResize; }
+
+protected:
 	FEvent_OnSplitteItemResize Event_OnSplitteItemResize;
+#pragma endregion event
+
 public:
 
-	UFUNCTION(BlueprintCallable, Category = "Slot | Spliter Slot")
+	UFUNCTION(BlueprintCallable, Category = "Slot | QSpliter Slot")
+		// 
 		UWidget * GetContentWidget() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Slot | Spliter Slot")
+	UFUNCTION(BlueprintCallable, Category = "Slot | QSpliter Slot")
+		// 
 		float GetSize() const;
 public:
+	// 
 	void BuildSlot(TSharedRef<SSplitter> SplitterCom);
+
+	#pragma region UPanelSlot Interface
 
 	// UPanelSlot interface
 	virtual void SynchronizeProperties() override;
 	// End of UPanelSlot interface
 
+	#pragma endregion UPanelSlot Interface
+
+
+	// 
 	virtual void ReleaseSlateResources(bool bReleaseChildren) override;
 
 protected:

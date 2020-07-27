@@ -95,6 +95,7 @@ void UCppWgt_BaseTabContainer::Switch(int32 index)
 	{
 		btn->SetIsEnabled(false);
 	}
+
 	Current_Index = index;
 
 	ContentContainer->SetActiveWidgetIndex(index);

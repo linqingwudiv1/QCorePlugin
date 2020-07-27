@@ -24,10 +24,9 @@
 
 #pragma region Graphs Algorithm
 
-//双立方插值
+// 双立方插值缩放 BGRA Format
 static void InterpolationScale(const uint8 * SrcData, int SrcWidth, int SrcHeight, uint8 * DstData, int DstWidth, int DstHeight)
 {
-
 	float w_scaleFactor = float(SrcWidth)  / DstWidth;
 	float h_scaleFactor = float(SrcHeight) / DstHeight;
 
@@ -68,7 +67,7 @@ static void InterpolationScale(const uint8 * SrcData, int SrcWidth, int SrcHeigh
 	}
 }
 
-//二分均值
+// 二分均值缩放 BGRA Format
 static void MinifyByTwoScale(const uint8 * SrcData, uint8 * dstData, int srcWidth, int srcHeight)
 {
 	int x, y, x2, y2;
@@ -108,6 +107,10 @@ static void MinifyByTwoScale(const uint8 * SrcData, uint8 * dstData, int srcWidt
 		}
 	}
 }
+
+#pragma endregion 
+
+
 
 /**
  * 纹理的像素级处理逻辑
@@ -260,6 +263,12 @@ EImageFormat GetImageFormatFromPath(const FString &path)
 
 #pragma endregion
 
+UImageHelper::UImageHelper(FObjectInitializer const & PCIP)
+	:Super(PCIP)
+{
+
+}
+
 void UImageHelper::LoadFormURL( const FString &Url	   , 
 									    bool bAutoGenerateMips , 
 									    bool bForceGenerateMips )
@@ -270,23 +279,34 @@ void UImageHelper::LoadFormURL( const FString &Url	   ,
 		return;
 	}
 
+	//中文转码
 	FString encodeUrl = UCoreBPLibrary::UrlEncode(Url);
 
-	//中文转码
-	auto req = UNetAPI::createRequst(encodeUrl, TEXT("GET"), TEXT("application/octet-stream;image/png;image/jpeg;"));
+	auto req = UNetAPI::createRequest(encodeUrl, TEXT("GET"), TEXT("application/octet-stream;image/png;image/jpeg;"));
 	
 	UImageAsyncProcessor* netProcessor = UImageAsyncProcessor::CreataFactory(bAutoGenerateMips, bForceGenerateMips);
-	netProcessor->OnLoadCompleted().AddLambda([=](bool bSuccessful, UTexture2D* t2d)
+	
+
+	netProcessor->OnLoadCompleted().AddLambda([this](bool bSuccessful, UTexture2D* t2d)
 	{
+		this->bLoading = false;
 		this->OnLoadCompleted().Broadcast(bSuccessful, t2d);
 	});
 
+	netProcessor->OnLoadProgress().AddLambda([this](float progressRate)
+	{
+		this->OnLoadProgress().Broadcast(progressRate);
+	});
+
+	req->OnRequestProgress().BindUObject(netProcessor, &UImageAsyncProcessor::Http_Progress);
 	req->OnProcessRequestComplete().BindUObject(netProcessor, &UImageAsyncProcessor::Http_HandleCompleted);
 
 	if (!req->ProcessRequest())
 	{
-		UE_LOG(LogHttp, Error, TEXT("----------------------- request Process Request invaild"));
+		UE_LOG(LogHttp, Error, TEXT("----------------------- request Process Request invaild."));
 	}
+
+	bLoading = true;
 }
 
 void UImageHelper::LoadFormURL( const FString & Url, 
@@ -363,46 +383,47 @@ UTexture2D * UImageHelper::ConvertTexture2DDynamicToTexture2D(UTexture2DDynamic 
 	Fence.BeginFence();
 	Fence.Wait();
 
-	ENQUEUE_UNIQUE_RENDER_COMMAND_TWOPARAMETER(FConvertTexture2DDynamicToTexture2DCommand,
-		UTexture2DDynamic *, target, target,
-		UTexture2D*, LoadedT2D, LoadedT2D,
+	ENQUEUE_RENDER_COMMAND(FConvertTexture2DDynamicToTexture2DCommand)
+	([target, LoadedT2D](FRHICommandListImmediate& RHICmdList)
+	{
+		uint32 Stride;
+		FTexture2DDynamicResource* res = static_cast<FTexture2DDynamicResource*>(target->Resource);
+
+		uint8* src_ptr =  static_cast<uint8*> (RHILockTexture2D(res->GetTexture2DRHI(), 0, EResourceLockMode::RLM_ReadOnly, Stride, false));
+		uint8* dest_ptr = static_cast<uint8*> (LoadedT2D->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE));
+
+		for (int y = 0; y < target->SizeY; y++)
 		{
-			uint32 Stride;
-			FTexture2DDynamicResource* res = static_cast<FTexture2DDynamicResource*>(target->Resource);
-
-			uint8* src_ptr = static_cast <uint8*> (RHILockTexture2D(res->GetTexture2DRHI(), 0, EResourceLockMode::RLM_ReadOnly, Stride, false));
-			uint8* dest_ptr = static_cast<uint8*> (LoadedT2D->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE));
-			//FMemory::Memcpy(dest_ptr, src_ptr, target->SizeX * target->SizeY * 4 + 1);
-
-			for (int y = 0; y < target->SizeY; y++)
+			for (int x = 0; x < target->SizeX; x++)
 			{
-				for (int x = 0; x < target->SizeX; x++)
-				{
-					uint32 idx = Stride / 4 * y + x;
+				uint32 idx = Stride / 4 * y + x;
 
-					// B 通道测试
-					*(dest_ptr + x * y * 4 + 0 ) = *(src_ptr + (idx ) * 4 + 0 );
-
-					// G 通道测试
-					*(dest_ptr + x * y * 4 + 1) = *(src_ptr + (idx ) * 4 + 1);
-
-					// R 通道测试
-					*(dest_ptr + x * y * 4 + 2) = *(src_ptr + (idx) * 4 + 2);
-
-					// A 通道测试
-					*(dest_ptr + x * y * 4 + 3) = *(src_ptr + (idx ) * 4 + 3);
-				}
+				// B 通道测试
+				*(dest_ptr + x * y * 4 + 0) = *(src_ptr + (idx) * 4 + 0);
+											  
+				// G 通道测试				  
+				*(dest_ptr + x * y * 4 + 1) = *(src_ptr + (idx) * 4 + 1);
+											  
+				// R 通道测试				  
+				*(dest_ptr + x * y * 4 + 2) = *(src_ptr + (idx) * 4 + 2);
+											  
+				// A 通道测试				  
+				*(dest_ptr + x * y * 4 + 3) = *(src_ptr + (idx) * 4 + 3);
 			}
+		}
 
-			LoadedT2D->PlatformData->Mips[0].BulkData.Unlock();
+		LoadedT2D->PlatformData->Mips[0].BulkData.Unlock();
 
-			RHIUnlockTexture2D(res->GetTexture2DRHI(), 0, false);
-			LoadedT2D->UpdateResource();
+		RHIUnlockTexture2D(res->GetTexture2DRHI(), 0, false);
+		LoadedT2D->UpdateResource();
 
-			UE_LOG(LogTemp, Log, TEXT("render threading  stride: %d  size: %d"), Stride, target->SizeX * target->SizeY * 4);
-		});
+		UE_LOG(LogTemp, Log, TEXT("render threading  stride: %d  size: %d"), Stride, target->SizeX * target->SizeY * 4);
+	}
+	);
 
-	//LoadedT2D->UpdateResource();
+	FlushRenderingCommands();
+
+	LoadedT2D->UpdateResource();
 	return LoadedT2D;
 }
 
@@ -448,6 +469,7 @@ void UImageAsyncProcessor::Http_HandleCompleted(FHttpRequestPtr Req, FHttpRespon
 		return;
 	}
 
+
 	TArray<uint8>rawData;
 
 	if ( !ImageWrapper->GetRaw(ERGBFormat::BGRA, 8, rawData) )
@@ -463,4 +485,13 @@ void UImageAsyncProcessor::Http_HandleCompleted(FHttpRequestPtr Req, FHttpRespon
 	auto t2d = Handle_T2D( w, h, rawData, this->bAutoGenerateMips, this->bForceGenerateMips );
 
 	this->OnLoadCompleted().Broadcast(true, t2d);
+
+	// this->OnLoadCompleted().Broadcast(true, t2d);
+}
+
+void UImageAsyncProcessor::Http_Progress(FHttpRequestPtr Request, int32 BytesSent, int32 BytesReceived)
+{
+	float downloadPercentage = BytesReceived / (float)Request->GetResponse()->GetContentLength();
+	OnLoadProgress().Broadcast( downloadPercentage);
+	UE_LOG(LogTemp, Log, TEXT("--------------------------- ContentLength:{%d} betesSent: {%d} BytesReceived:{%d} downloadPercentage :{%f}"),  Request->GetResponse()->GetContentLength(), BytesSent, BytesReceived, downloadPercentage);
 }

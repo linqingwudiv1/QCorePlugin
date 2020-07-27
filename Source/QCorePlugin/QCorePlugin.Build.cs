@@ -17,8 +17,10 @@ public class QCorePlugin : ModuleRules
 
 
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-		
-		PublicIncludePaths.AddRange(
+
+        PublicIncludePaths.Add(Path.GetFullPath(ModuleDirectory));
+
+        PublicIncludePaths.AddRange(
 			new string[] {
 				// ... add public include paths required here ...
 			}
@@ -35,17 +37,7 @@ public class QCorePlugin : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-                // ... add other public dependencies that you statically link with here ...
-                "QDesktopPlatform"
-                
-            }
-			);
-			
-		
-		PrivateDependencyModuleNames.AddRange(
-			new string[]
-			{
-                "Core"              ,
+                 "Core"              ,
                 "CoreUObject"       ,
                 "Engine"            ,
                 "InputCore"         ,
@@ -62,22 +54,33 @@ public class QCorePlugin : ModuleRules
                 "Sockets"           ,
                 "Networking"        ,
                 "IPC"               ,
+                // ... add other public dependencies that you statically link with here ...
+                "QUMG"
+            }
+			);
+
+		
+		PrivateDependencyModuleNames.AddRange(
+			new string[]
+			{
+
                 // web plugin
                 "WebBrowser"        ,
                 "WebBrowserWidget"  ,
+
                 // custom modules
 
 				// ... add private dependencies that you statically link with here ...	
 			}
-			);
+            );
 
         if (IsShipping(Target))
         {
-            //PrivateDependencyModuleNames.Add("QDesktopPlatform");
+            PrivateDependencyModuleNames.Add("QDesktopPlatform");
         }
         else
         {
-            //PrivateDependencyModuleNames.Add("DesktopPlatform");
+            PrivateDependencyModuleNames.Add("DesktopPlatform");
         }
 
         //WebBrowser Dependency
@@ -90,14 +93,18 @@ public class QCorePlugin : ModuleRules
                 }
             );
         }
-
         PublicDefinitions.Add("WIN32_LEAN_AND_MEAN");
 
         DynamicallyLoadedModuleNames.AddRange(
 			new string[]
 			{
 				// ... add any modules that your module loads dynamically here ...
-			}
+                "AssetRegistry"
+            }
 			);
-	}
+
+        OptimizeCode = CodeOptimization.InShippingBuildsOnly;
+
+        //PrivateIncludePathModuleNames.Add("TargetPlatform");
+    }
 }

@@ -71,8 +71,6 @@ bool UCoordProjectionBPLibrary::DeprojectScreenPosition(UObject * WorldContextOb
 
 TArray<FVector2D> UCoordProjectionBPLibrary::WorldBoxToScreenBox(UObject *WorldContextObject, const FVector& Center, const FRotator& rot, const FVector& Extend)
 {
-	
-	
 	FTransform tran(rot);
 	TArray<FVector> arr;
 

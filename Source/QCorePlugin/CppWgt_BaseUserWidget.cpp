@@ -5,7 +5,7 @@
 
 FReply UCppWgt_BaseUserWidget::NativeOnMouseWheel(const FGeometry & InGeometry, const FPointerEvent & InMouseEvent)
 {
-	return FReply::Handled();
+	return Super::NativeOnMouseWheel(InGeometry, InMouseEvent);
 }
 
 void UCppWgt_BaseUserWidget::NativeConstruct()
