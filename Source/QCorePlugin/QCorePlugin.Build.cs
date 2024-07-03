@@ -45,7 +45,7 @@ public class QCorePlugin : ModuleRules
                 "RenderCore"        ,
                 "Slate"             ,
                 "SlateCore"         ,
-                "Http"              ,
+                "HTTP"              ,
                 "UMG"               ,
                 "AIModule"          ,
                 "ImageWrapper"      ,
@@ -55,7 +55,8 @@ public class QCorePlugin : ModuleRules
                 "Networking"        ,
                 "IPC"               ,
                 // ... add other public dependencies that you statically link with here ...
-                "QUMG"
+                "QUMG",
+                "QRender"
             }
 			);
 

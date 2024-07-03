@@ -1,4 +1,4 @@
-// Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
+﻿// Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 using System;
 using System.IO;
 using UnrealBuildTool;
@@ -34,10 +34,10 @@ public class QUMG : ModuleRules
                 "RenderCore"    ,
                 "RHI"           ,
                 "Slate"         ,
-                "SlateCore"     ,
+                "SlateCore"     , 
                 "UMG"           ,
                 "WebBrowser"    ,
-                "Http"
+                "HTTP"
             }
         );
 

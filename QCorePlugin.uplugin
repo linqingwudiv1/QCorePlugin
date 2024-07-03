@@ -1,4 +1,4 @@
-{
+﻿{
   "FileVersion": 3,
   "Version": 1,
   "VersionName": "1.0",
@@ -23,12 +23,27 @@
       "Name": "QUMG",
       "Type": "Runtime",
       "LoadingPhase": "PreDefault"
+    },
+    {
+      "Name": "QRender",
+      "Type": "Runtime",
+      "LoadingPhase": "PreDefault"
     }
   ],
   "Plugins": [
     {
       "Name": "WebBrowserWidget",
       "Enabled": true
+    },
+    {
+      "Name": "OpenColorIO",
+      "Enabled": true,
+      "Optional": false
+    },
+    {
+      "Name": "OpenCVLensDistortion",
+      "Enabled": true,
+      "Optional": false
     }
   ]
 }
