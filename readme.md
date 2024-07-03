@@ -2,13 +2,16 @@
 
 support 4.2x.x and 5.3.x
 
+
+Tool Plugin.The UE4 Feature Extend/Helper contain some method about Texture/Pipe/WebBrowser/HTTP/IO/JSON
+
+
 5.3.x new:
 
 * lumen high frame ouput and high shot to disk(like scene capture 2d)
 * winapi implmentantion system open file dialog at runtime.
 * Additional Examples
 
-Tool Plugin.The UE4 Feature Extend and Feature Helper and contain some method about Texture/Pipe/WebBrowser/HTTP/IO/JSON
 
 # Use Exam
 
@@ -42,6 +45,14 @@ UDownloadHelper* UHttpBPLibrary::DownloadRange(UObject* WorldContextObject, cons
 
 	return NewObj;
 }
+```
+
+#### 4. dynamic loading texture2d and generate mipmap arrary:
+
+```cpp
+	auto imageHelper = NewObject<UImageHelper>();
+	//generate mipmaps arrary need ensure image size is 2 of power or enable bForceGenerateMips
+	UTexture2D* t2d = imageHelper->LoadFromDisk(const FString &Path, bool  bAutoGenerateMips = true, bool bForceGenerateMips = false);
 ```
 
 Copy to QCorePlugin by 2024
