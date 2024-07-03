@@ -31,14 +31,14 @@ UDownloadHelper* UHttpBPLibrary::DownloadRange(UObject* WorldContextObject, cons
 	
 	NewObj->StartByDisk(Url, TEXT("d:/disk.png"));
 
-	NewObj->OnDownloadCompleted().AddLambda([](UDownloadHelper* _DownloadHelper)
+	NewObj->OnDownloadCompleted().AddLambda([](UDownloadHelper* _DownloadHelper, bool bSuccessful , const FString &msg)
 		{
-		UE_LOG(LogTemp, Log, TEXT("Download Completed..."));
-	});
-	NewObj->OnDownloadProgress().AddLambda([](UDownloadHelper* _DownloadHelper, int32 _DownloadedSize, int32 _TotalSize)
+			UE_LOG(LogTemp, Log, TEXT("Download Completed... %d %s"), bSuccessful ,*msg);
+		});
+	NewObj->OnDownloadProgress().AddLambda([](UDownloadHelper* _DownloadHelper,const FQHttpProgress& info )
 		{
-		UE_LOG(LogTemp, Log, TEXT("Download Progress... %d / %d"), _DownloadedSize, _TotalSize);
-	});
+			UE_LOG(LogTemp, Log, TEXT("Download Progress... %d / %d   %f / %f"), info.NewReceive, info.NewSent, info.ReceiveProgress, info.SentProgress);
+		});
 
 	return NewObj;
 }
