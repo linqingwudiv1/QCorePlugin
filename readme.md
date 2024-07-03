@@ -6,6 +6,7 @@ support 4.2x.x and 5.3.x
 
 * lumen high frame ouput and high shot to disk(like scene capture 2d)
 * winapi implmentantion system open file dialog at runtime.
+* Additional Examples
 
 Tool Plugin.The UE4 Feature Extend and Feature Helper and contain some method about Texture/Pipe/WebBrowser/HTTP/IO/JSON
 
@@ -20,5 +21,27 @@ Tool Plugin.The UE4 Feature Extend and Feature Helper and contain some method ab
 <img src="Readme/spliterwidget.png" alt="描述文本" width="720"/>
 <img src="Readme/splitteranim.gif" alt="描述文本" width="480"/>
 
+
+##### 3. download large file use range download to disk:
+
+```cpp
+UDownloadHelper* UHttpBPLibrary::DownloadRange(UObject* WorldContextObject, const FString& Url)
+{
+	UDownloadHelper* NewObj = NewObject<UDownloadHelper>(WorldContextObject, NAME_None, RF_Transient);
+	
+	NewObj->StartByDisk(Url, TEXT("d:/disk.png"));
+
+	NewObj->OnDownloadCompleted().AddLambda([](UDownloadHelper* _DownloadHelper)
+		{
+		UE_LOG(LogTemp, Log, TEXT("Download Completed..."));
+	});
+	NewObj->OnDownloadProgress().AddLambda([](UDownloadHelper* _DownloadHelper, int32 _DownloadedSize, int32 _TotalSize)
+		{
+		UE_LOG(LogTemp, Log, TEXT("Download Progress... %d / %d"), _DownloadedSize, _TotalSize);
+	});
+
+	return NewObj;
+}
+```
 
 Copy to QCorePlugin by 2024
