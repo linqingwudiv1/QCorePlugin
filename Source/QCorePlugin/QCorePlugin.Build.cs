@@ -1,4 +1,4 @@
-// Some copyright should be here...
+﻿// Some copyright should be here...
 
 using System;
 using System.IO;
@@ -45,7 +45,7 @@ public class QCorePlugin : ModuleRules
                 "RenderCore"        ,
                 "Slate"             ,
                 "SlateCore"         ,
-                "HTTP"              ,
+                "Http"              ,
                 "UMG"               ,
                 "AIModule"          ,
                 "ImageWrapper"      ,

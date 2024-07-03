@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "JsonObjectConverterEX.h"
 #include "Internationalization/Culture.h"
@@ -575,9 +575,9 @@ namespace
 	}
 	else if (FStructProperty *StructProperty = CastField<FStructProperty>(Property))
 	{
-		static const FName NAME_DateTime(TEXT("DateTime"));
-		static const FName NAME_Color(TEXT("Color"));
-		static const FName NAME_LinearColor(TEXT("LinearColor"));
+		const FName NAME_DateTime1(TEXT("DateTime"));
+		const FName NAME_Color1(TEXT("Color"));
+		const FName NAME_LinearColor1(TEXT("LinearColor"));
 		if (JsonValue->Type == EJson::Object)
 		{
 			TSharedPtr<FJsonObject> Obj = JsonValue->AsObject();
@@ -588,7 +588,7 @@ namespace
 				return false;
 			}
 		}
-		else if (JsonValue->Type == EJson::String && StructProperty->Struct->GetFName() == NAME_LinearColor)
+		else if (JsonValue->Type == EJson::String && StructProperty->Struct->GetFName() == NAME_LinearColor1)
 		{
 			FLinearColor& ColorOut = *(FLinearColor*)OutValue;
 			FString ColorString = JsonValue->AsString();
@@ -598,14 +598,14 @@ namespace
 
 			ColorOut = IntermediateColor;
 		}
-		else if (JsonValue->Type == EJson::String && StructProperty->Struct->GetFName() == NAME_Color)
+		else if (JsonValue->Type == EJson::String && StructProperty->Struct->GetFName() == NAME_Color1)
 		{
 			FColor& ColorOut = *(FColor*)OutValue;
 			FString ColorString = JsonValue->AsString();
 
 			ColorOut = FColor::FromHex(ColorString);
 		}
-		else if (JsonValue->Type == EJson::String && StructProperty->Struct->GetFName() == NAME_DateTime)
+		else if (JsonValue->Type == EJson::String && StructProperty->Struct->GetFName() == NAME_DateTime1)
 		{
 			FString DateString = JsonValue->AsString();
 			FDateTime& DateTimeOut = *(FDateTime*)OutValue;

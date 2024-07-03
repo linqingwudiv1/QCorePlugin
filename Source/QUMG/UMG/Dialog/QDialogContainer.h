@@ -1,11 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
 
 #include "Components/Border.h"
-#include "SlateCore/Public/Fonts/SlateFontInfo.h"
+#include "Fonts/SlateFontInfo.h"
 #include "QDialogContainer.generated.h"
 
 /**

@@ -1,4 +1,4 @@
-// Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
+﻿// Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
 #include "QSplitterSlot.h"
 
@@ -35,7 +35,7 @@ void UQSplitterSlot::Handle_OnSlotResized(float val)
 		return;
 	}
 
-	Slot->Value( val );
+	Slot->SetSizeValue( val );
 	SizeValue = val;
 
 	this->OnSplitteItemResize().Broadcast(Content, val);
@@ -93,16 +93,15 @@ float UQSplitterSlot::GetSize() const
 
 void UQSplitterSlot::BuildSlot(TSharedRef<SSplitter> SplitterCom)
 {
-	Slot = &SplitterCom->AddSlot()
-	[
-		Content == NULL ? SNullWidget::NullWidget : Content->TakeWidget()
-	].Value(SizeValue);
+	Slot = SplitterCom->AddSlot()
+		[
+			Content == NULL ? SNullWidget::NullWidget : Content->TakeWidget()
+		].GetSlot();
 
-	TBaseDelegate<void, float> delegate_event;
+	//TBaseDelegate<void, float> delegate_event;
+	//delegate_event.BindUObject(this, &UQSplitterSlot::Handle_OnSlotResized);
 
-	delegate_event.BindUObject(this, &UQSplitterSlot::Handle_OnSlotResized);
-
-	Slot->OnSlotResized( delegate_event );
+	Slot->OnSlotResized().BindUObject(this, &UQSplitterSlot::Handle_OnSlotResized);
 }
 
 void UQSplitterSlot::SynchronizeProperties()

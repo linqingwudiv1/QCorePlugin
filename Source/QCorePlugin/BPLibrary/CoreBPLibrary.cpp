@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CoreBPLibrary.h"
 
@@ -111,7 +111,8 @@ TArray<FString> UCoreBPLibrary::OpenFileDialog( UObject * WorldContextObject,
 
 int32 UCoreBPLibrary::GetMeshMaterialNum(UStaticMesh * mesh)
 {
-	int32 num = mesh->StaticMaterials.Num();
+	
+	int32 num = mesh->GetStaticMaterials().Num();
 	
 	return num;
 }

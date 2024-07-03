@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "WebBrowserExtend.h"
 #include "SWebBrowserExtend.h"
@@ -15,7 +15,7 @@
 #include "Materials/MaterialExpressionTextureSampleParameter2D.h"
 #include "Materials/MaterialFunction.h"
 #include "Factories/MaterialFactoryNew.h"
-#include "AssetRegistryModule.h"
+#include "AssetRegistry/AssetRegistryModule.h"
 #include "PackageHelperFunctions.h"
 #endif
 

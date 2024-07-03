@@ -1,4 +1,4 @@
-/************************************************************************/
+﻿/************************************************************************/
 /* 私有变量访问帮助宏，（快速绑定友元类）                                                                     */
 /************************************************************************/
 
@@ -51,7 +51,7 @@ namespace Hacker
 #define WRAP_TEMPLATE_ARGS(TEMP_TYPE,...) TEMP_TYPE<__VA_ARGS__>
 
 
-
+#pragma region exam
 // class A{
 // public:
 // 	A(int ivalp=0):ival{ivalp}{}
@@ -79,3 +79,4 @@ namespace Hacker
 // 	auto A_func=GET_PRIVATE_MEMBER_FUNCTION(A, func);
 // 	cout<<CALL_MEMBER_FUNCTION(&aobj, A_func, 123);
 // }
+#pragma endregion exam

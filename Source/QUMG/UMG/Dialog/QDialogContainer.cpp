@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "QDialogContainer.h"
 
@@ -40,7 +40,7 @@ UQDialogContainer::UQDialogContainer(const FObjectInitializer& ObjectInitializer
 	
 	DefaultFont.Size = 10;
 
-	this->OnClose().AddLambda([=](UQDialogContainer* dialog)
+	this->OnClose().AddLambda([this](UQDialogContainer* dialog)
 	{
 		this->OnClose_BP.Broadcast(dialog);
 	});
@@ -70,7 +70,7 @@ TSharedRef<SWidget> UQDialogContainer::CreateTitlebar()
 		TitlebarWgt->OnClose().AddUObject(this, &UQDialogContainer::HandleClose);
 		//事件响应CreateTitlebar
 
-		TSharedRef<SBorder, ESPMode::NotThreadSafe > TitleBar = SNew(SBorder)
+		TSharedRef<SBorder> TitleBar = SNew(SBorder)
 		[
 			TitlebarWgt->TakeWidget()
 		]
@@ -85,7 +85,7 @@ TSharedRef<SWidget> UQDialogContainer::CreateTitlebar()
 	}
 	else
 	{
-		TSharedRef<SBorder, ESPMode::NotThreadSafe > TitleBar =
+		TSharedRef<SBorder> TitleBar =
 			SNew(SBorder)
 			[
 				SNew(SBorder)

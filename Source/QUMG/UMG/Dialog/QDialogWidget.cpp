@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "QDialogWidget.h"
 
@@ -6,8 +6,8 @@
 #include "Components/CanvasPanelSlot.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "UMG/Public/Blueprint/widgetblueprintlibrary.h"
-#include "UMG/Public/Blueprint/WidgetLayoutLibrary.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
 
 #include "Kismet/KismetInputLibrary.h"
 #include "Kismet/KismetMathLibrary.h"

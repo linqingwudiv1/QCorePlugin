@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "ImageHelper.h"
@@ -157,19 +157,19 @@ UTexture2D* Handle_T2D(int imgW, int imgH, const TArray<uint8>& rawData, bool  b
 	if (bResizeSize)
 	{
 		LoadedT2D = UTexture2D::CreateTransient(ScaleW, ScaleH, PF_B8G8R8A8);
-		TextureData = static_cast<uint8*>(LoadedT2D->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE));
+		TextureData = static_cast<uint8*>(LoadedT2D->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE));
 		InterpolationScale(rawData.GetData(), imgW, imgH, TextureData, ScaleW, ScaleH);
 	}
 	else
 	{
 		LoadedT2D = UTexture2D::CreateTransient(imgW, imgH, PF_B8G8R8A8);
-		TextureData = static_cast<uint8*>(LoadedT2D->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE));
+		TextureData = static_cast<uint8*>(LoadedT2D->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE));
 		FMemory::Memcpy(TextureData, rawData.GetData(), rawData.Num());
 	}
 
 	LoadedT2D->SRGB = true;
 
-	LoadedT2D->PlatformData->Mips[0].BulkData.Unlock();
+	LoadedT2D->GetPlatformData()->Mips[0].BulkData.Unlock();
 #pragma endregion
 
 
@@ -184,14 +184,14 @@ UTexture2D* Handle_T2D(int imgW, int imgH, const TArray<uint8>& rawData, bool  b
 	if (bGenerateMips)
 	{
 		const uint8 *pre_data = TextureData;
-		int pow_W = (int)FMath::Log2(ScaleW);
-		int pow_H = (int)FMath::Log2(ScaleH);
+		int pow_W = (int)FMath::Log2((float)ScaleW);
+		int pow_H = (int)FMath::Log2((float)ScaleH);
 		int powNum = FMath::Max(pow_W, pow_H);
 		for (int i = 0; i < powNum; i++)
 		{
 			int32 NumBytes = (curW * curH) * 4;
 			FTexture2DMipMap* Mip = new FTexture2DMipMap();
-			LoadedT2D->PlatformData->Mips.Add(Mip);
+			LoadedT2D->GetPlatformData()->Mips.Add(Mip);
 
 			Mip->SizeX = curW;
 			Mip->SizeY = curH;
@@ -390,7 +390,7 @@ UTexture2D * UImageHelper::ConvertTexture2DDynamicToTexture2D(UTexture2DDynamic 
 		FTexture2DDynamicResource* res = static_cast<FTexture2DDynamicResource*>(target->Resource);
 
 		uint8* src_ptr =  static_cast<uint8*> (RHILockTexture2D(res->GetTexture2DRHI(), 0, EResourceLockMode::RLM_ReadOnly, Stride, false));
-		uint8* dest_ptr = static_cast<uint8*> (LoadedT2D->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE));
+		uint8* dest_ptr = static_cast<uint8*> (LoadedT2D->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE));
 
 		for (int y = 0; y < target->SizeY; y++)
 		{
@@ -412,7 +412,7 @@ UTexture2D * UImageHelper::ConvertTexture2DDynamicToTexture2D(UTexture2DDynamic 
 			}
 		}
 
-		LoadedT2D->PlatformData->Mips[0].BulkData.Unlock();
+		LoadedT2D->GetPlatformData()->Mips[0].BulkData.Unlock();
 
 		RHIUnlockTexture2D(res->GetTexture2DRHI(), 0, false);
 		LoadedT2D->UpdateResource();

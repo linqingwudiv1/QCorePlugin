@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "QSplitterWidget.h"
 
@@ -44,7 +44,7 @@ void SMySlateWidget::Construct(const FArguments& InArgs)
 			]
 		];
 
-	SConstraintCanvas::FSlot &temp_slot = SConstraintCanvas::Slot();
+	SConstraintCanvas::FSlot::FSlotArguments temp_slot = SConstraintCanvas::Slot();
 	temp_slot.Anchors(FAnchors(0.0f, 0.0f, 1.0f, 1.0f))
 		.Offset(FMargin(100.0f, 100.0f, 100.0f, 100.0f))
 		.ZOrder(1)
@@ -92,7 +92,7 @@ TSharedRef<SWidget> UQSplitterWidget::RebuildWidget()
 			]
 		];
 
-	SConstraintCanvas::FSlot &temp_slot = SConstraintCanvas::Slot();
+	SConstraintCanvas::FSlot::FSlotArguments temp_slot = SConstraintCanvas::Slot();
 	temp_slot.Anchors(FAnchors(0.0f, 0.0f, 1.0f, 1.0f))
 		.Offset(FMargin(100.0f, 100.0f, 100.0f, 100.0f))
 		.ZOrder(1)
