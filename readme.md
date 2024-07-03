@@ -47,11 +47,11 @@ UDownloadHelper* UHttpBPLibrary::DownloadRange(UObject* WorldContextObject, cons
 }
 ```
 
-#### 4. dynamic loading texture2d and generate mipmap arrary:
+#### 4. dynamic loading texture2d and generate mipmap array:
 
 ```cpp
 	auto imageHelper = NewObject<UImageHelper>();
-	//generate mipmaps arrary need ensure image size is 2 of power or enable bForceGenerateMips
+	//generate mipmaps array need ensure image size is 2 of power or enable bForceGenerateMips
 	UTexture2D* t2d = imageHelper->LoadFromDisk(const FString &Path, bool  bAutoGenerateMips = true, bool bForceGenerateMips = false);
 ```
 
