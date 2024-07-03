@@ -4,7 +4,7 @@ support 4.2x.x and 5.3.x
 
 5.3.x new:
 
-* .new feature:lumen high frame ouput and high shot to disk
+* lumen high frame ouput and high shot to disk(like scene capture 2d)
 * winapi implmentantion system open file dialog at runtime.
 
 Tool Plugin.The UE4 Feature Extend and Feature Helper and contain some method about Texture/Pipe/WebBrowser/HTTP/IO/JSON
