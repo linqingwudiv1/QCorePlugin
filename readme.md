@@ -3,7 +3,7 @@
 support 4.2x.x and 5.3.x
 
 
-Tool Plugin.The UE4 Feature Extend/Helper contain some method about Texture/Pipe/WebBrowser/HTTP/IO/JSON
+Tool Plugin.The UE4 Feature Extend/Helper contain some method about Texture/Pipe/WebBrowser/HTTP/IO/JSON/round corner in 4.2x.x(ue5 already implement round feature UBorder)
 
 
 5.3.x new:
